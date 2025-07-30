@@ -1,5 +1,6 @@
-item_name,quantity,price
-Apples,10,1.5
-Bananas,ten,1.2
-Oranges,-5,0.8
-Mangoes,25,notavailable
+product_id,product_name,quantity,price
+101,Apples,5,1.5
+102,Bananas,ten,1.2
+103,Oranges,-3,0.8
+104,Grapes,15,2.0
+105,Mangoes,8,-1.0

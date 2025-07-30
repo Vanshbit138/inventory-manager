@@ -1,71 +1,81 @@
-# List
-
-# Tuples are another fundamental data structure in Python, serving as ordered collections of elements.
-# Detailed Definition:
-
-# List are mutable sequences of items enclosed in square brackets [].
-# Once created, you can modify individual elements or the size of the list.
-# Elements can be of different data types, creating heterogeneous lists.
-# Lists are indexed, starting from 0. .
-# Slicing works the same as with tuple to extract sub-lists.
-
-
-
+def demonstrate_list_properties():
+    """
+    Demonstrates the creation and basic characteristics of a list in Python.
+    Lists are:
+    - Mutable sequences enclosed in square brackets []
+    - Can hold heterogeneous data types
+    - Support indexing and slicing
+    """
+    my_list = [1, 2, 3.121, "Bharat", True, False, 2+6j, [1, 2, 3, 4], [5, 6, 6, 1]]
+    print(type(my_list))
+    print(my_list)
 
 
-my_list = [1,2,3.121,"Bharat",True,False,2+6j,[1,2,3,4],[5,6,6,1] ]
-my_list
-print(type(my_list))
+def demonstrate_list_functions():
+    """
+    Demonstrates usage of common list methods like append(), insert(), and clear().
+    """
+    list1 = [1, 2, 3, 4, 5, 6, 7, 9]
+    list1.append(5)
+    print("After append:", list1)
+
+    list1.insert(4, 4.5)
+    print("After insert:", list1)
+
+    # Uncomment below line to clear list
+    # list1.clear()
 
 
-#List Functions:
-
-list1 = [1,2,3,4,5,6,7,9]
-list1.append(5)
-print(list1)            # list1 = [1, 2, 3, 4, 5, 6, 7, 9, 5]
-
-
-list1.insert(4,4.5)
-print(list1)
-
-
-#list1.clear()
-
-list_ = [1, 2, 3, 4, 4.5, 4.5, 5, 6, 7, 9, 5]
-count = 0
-
-for i in list_:
-  count +=1
-print(count)
+def count_elements():
+    """
+    Counts the number of elements in a list using a loop.
+    """
+    list_ = [1, 2, 3, 4, 4.5, 4.5, 5, 6, 7, 9, 5]
+    count = 0
+    for i in list_:
+        count += 1
+    print("Total elements:", count)
 
 
+def fizz_buzz_logic():
+    """
+    Applies FizzBuzz logic to numbers 1 through 15:
+    - Multiples of 3 -> 'Fizz'
+    - Multiples of 5 -> 'Buzz'
+    - Multiples of both -> 'FizzBuzz'
+    """
+    list_ = list(range(1, 16))
+    new = []
 
-list_ = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    for i in list_:
+        if i % 3 == 0 and i % 5 == 0:
+            new.append("FizzBuzz")
+        elif i % 3 == 0:
+            new.append("Fizz")
+        elif i % 5 == 0:
+            new.append("Buzz")
+        else:
+            new.append(i)
 
-new = []
-# 3 - > Fizz
-# 5 - > Bizz
-# 3 & 5 > FizzBuzz
-
-
-for i in list_:
-  if i % 3 == 0 and i % 5 == 0:
-    new.append("FizzBuzz")
-  elif i % 3 == 0:
-    new.append("Fizz")
-  elif i % 5 ==0:
-    new.append("Buzz")
-  else:
-    new.append(i)
-
-print(new)
-
-
-# List Comprihention
-
-new = [i ** 2 for i in range(1,11)]
-print(new)
+    print("FizzBuzz Output:", new)
 
 
-new = [i for i in range(1,21) if i % 2 == 0]
-print(new)
+def demonstrate_list_comprehension():
+    """
+    Shows examples of list comprehension:
+    - Squaring numbers from 1 to 10
+    - Filtering even numbers from 1 to 20
+    """
+    squares = [i ** 2 for i in range(1, 11)]
+    print("Squares:", squares)
+
+    evens = [i for i in range(1, 21) if i % 2 == 0]
+    print("Even numbers:", evens)
+
+
+if __name__ == "__main__":
+    demonstrate_list_properties()
+    demonstrate_list_functions()
+    count_elements()
+    fizz_buzz_logic()
+    demonstrate_list_comprehension()

@@ -1,8 +1,6 @@
 # inventory-manager
 
-
-
-##  Week 1 - Git Workflow Tasks
+## Week 1 - Git Workflow Tasks
 
 The following tasks were completed as part of Week 1 Git practice:
 
@@ -18,7 +16,7 @@ The following tasks were completed as part of Week 1 Git practice:
 - [x] Created and handled **Pull Request (PR)** from `feat/week-1` to `develop`.
 - [x] Reviewed and merged PR after mentor feedback.
 
-##  Scripts Overview
+## Scripts Overview
 
 - `hello.py`: Prints a welcome message.
 - `zen.py`: Prints "The Zen of Python" for coding philosophy.
@@ -27,59 +25,113 @@ The following tasks were completed as part of Week 1 Git practice:
 - `main.py`: Placeholder script (to be extended in later weeks).
 
 ## Week 2 - Python Scripting & Error Handling
+
 Structured coding tasks organized by topic to build a CLI-based inventory system.
 
-📁 Folder Structure
+### 📁 Folder Structure
 
+```
 Week-2/
+├── data_validation/
+│   ├── errors.log
+│   ├── inventory.csv
+│   ├── low_stock_report.txt
+│   └── process_inventory.py
+├── exception_handling/
+│   ├── exceptions.py
+│   └── numbers.txt
+├── file_handling/
+│   ├── backup.bin
+│   ├── content.txt
+│   ├── modes.py
+│   ├── output.csv
+│   ├── photo.jpeg
+│   ├── reader.py
+│   ├── students.csv
+│   └── students.txt
 ├── conditionals_functions.py
 ├── dicts.py
 ├── lists.py
 ├── sets.py
-├── tuples.py
-├── file_handling/
-├── exception_handling/
-└── data_validation/
-📌 Topics Covered
-✅ Control structures and reusable functions
+└── tuples.py
+```
 
-✅ Data structures: lists, dicts, sets, tuples
+### 📌 Topics Covered
 
-✅ File reading and writing (file_handling/)
+✅ **Control structures and reusable functions** (`conditionals_functions.py`)
 
-✅ Exception management with try...except (exception_handling/)
+✅ **Data structures:**
+- Lists manipulation and operations (`lists.py`)
+- Dictionary operations and methods (`dicts.py`) 
+- Set operations and mathematics (`sets.py`)
+- Tuple usage and immutability (`tuples.py`)
 
-✅ Data cleaning and validation with Pydantic (data_validation/)
+✅ **File handling** (`file_handling/`)
+- Reading and writing text files (`reader.py`, `content.txt`)
+- CSV file operations (`students.csv`, `output.csv`)
+- Different file modes and binary handling (`modes.py`, `backup.bin`)
+- Image file handling (`photo.jpeg`)
 
-🧪 Current Git Practice
- Created a new branch feat/week-2 from develop
+✅ **Exception management** (`exception_handling/`)
+- Try-catch blocks and error handling (`exceptions.py`)
+- Processing numeric data with validation (`numbers.txt`)
 
- Committed changes for each task logically
+✅ **Data validation and processing** (`data_validation/`)
+- Inventory data processing (`process_inventory.py`)
+- CSV data handling (`inventory.csv`)
+- Report generation (`low_stock_report.txt`)
+- Error logging (`errors.log`)
 
- Structured folders for modular learning
+### 🧪 Current Git Practice
 
- Pushed changes regularly to feat/week-2
+✅ Created a new branch `feat/week-2` from `develop`
 
- Created Pull Request from feat/week-2 to develop
+✅ Committed changes for each task logically
+
+✅ Structured folders for modular learning
+
+✅ Pushed changes regularly to `feat/week-2`
+
+✅ Created Pull Request from `feat/week-2` to `develop`
 
 ✅ More weeks to follow as the project evolves into a fully functional inventory manager.
 
-🛠️ To Run the Project
-Make sure you're inside a virtual environment.
+## 🛠️ To Run the Project
 
+Make sure you're inside a virtual environment:
+
+```bash
 python3 -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 pip install -r requirements.txt
-python Week-2/main.py     # Or run individual scripts for each concept
 
+# Run individual topic scripts
+python Week-2/conditionals_functions.py
+python Week-2/lists.py
+python Week-2/dicts.py
+python Week-2/sets.py
+python Week-2/tuples.py
 
-##  Git Commands Practiced
+# Run file handling examples
+python Week-2/file_handling/reader.py
+python Week-2/file_handling/modes.py
+
+# Run exception handling examples
+python Week-2/exception_handling/exceptions.py
+
+# Run data validation scripts
+python Week-2/data_validation/process_inventory.py
+```
+
+## Git Commands Practiced
 
 ```bash
 git clone <repo-url>
 git checkout -b develop
 git push -u origin develop
-git checkout -b feat/week-1
+git checkout -b feat/week-2
 git add .
-git commit -m "Initial setup"
-git push -u origin feat/week-1
+git commit -m "Add Week-2 Python fundamentals"
+git push -u origin feat/week-2
+# Create PR from feat/week-2 to develop
+```

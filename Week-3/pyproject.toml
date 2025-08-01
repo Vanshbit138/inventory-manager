@@ -1,0 +1,14 @@
+[project]
+name = "inventory-manager"
+version = "0.1.0"
+description = "Inventory management using Python OOP"
+authors = [{ name = "Vansh Jaiswal", email = "you@example.com" }]
+requires-python = ">=3.10"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "B"]

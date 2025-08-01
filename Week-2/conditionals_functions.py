@@ -9,6 +9,7 @@ Demonstrates core Python concepts:
 Each function includes a clear docstring for maintainability.
 """
 
+
 # Function 1: Greet user based on age
 def greet_by_age(age):
     """
@@ -27,6 +28,7 @@ def greet_by_age(age):
     else:
         return "Welcome, adult!"
 
+
 # Function 2: Print each fruit using for loop
 def list_fruits(fruits):
     """
@@ -38,6 +40,7 @@ def list_fruits(fruits):
     print("\nFruit List:")
     for fruit in fruits:
         print("-", fruit)
+
 
 # Function 3: Count to N using a while loop
 def count_to_n(n):
@@ -53,6 +56,7 @@ def count_to_n(n):
         print(count)
         count += 1
 
+
 # Function 4: Add two numbers and return the sum
 def add_numbers(a, b):
     """
@@ -66,6 +70,7 @@ def add_numbers(a, b):
         int or float: Sum of a and b.
     """
     return a + b
+
 
 # Function 5: Check if a number is prime
 def is_prime(n):
@@ -85,6 +90,7 @@ def is_prime(n):
             return False
     return True
 
+
 # Function 6: Print all prime numbers in a range
 def print_primes_in_range(start, end):
     """
@@ -97,8 +103,9 @@ def print_primes_in_range(start, end):
     print(f"\nPrime numbers between {start} and {end}:")
     for num in range(start, end + 1):
         if is_prime(num):
-            print(num, end=' ')
+            print(num, end=" ")
     print()  # newline
+
 
 # Function 7: Save order (Dummy function for SRP)
 def save_to_db(order_id):
@@ -110,6 +117,7 @@ def save_to_db(order_id):
     """
     print(f"\nOrder {order_id} saved to database.")
 
+
 # Function 8: Send confirmation email (Dummy function for SRP)
 def send_confirmation(order_id):
     """
@@ -119,6 +127,7 @@ def send_confirmation(order_id):
         order_id (str): The order identifier.
     """
     print(f"Confirmation email sent for order {order_id}.")
+
 
 # Function 9: Process an order using SRP
 def process_order(order_id):

@@ -39,6 +39,11 @@ The following tasks were completed as part of Week 1 Git practice:
 - `pythonic_demo.py`: Shows Pythonic constructs and best practices.
 - `main.py`: Placeholder script (to be extended in later weeks).
 
+## ▶️ To Run
+```bash
+python Week-1/hello.py
+python Week-1/zen.py
+```
 ## Week 2 - Python Scripting & Error Handling
 
 Structured coding tasks organized by topic to build a CLI-based inventory system.
@@ -188,4 +193,17 @@ Week-3/
 ├── main.py                       # Entry point script to run inventory system│
 ├── pyproject.toml                # Config for black, ruff, etc.
 ├── requirements.txt              # Python package dependencies
+```
+
+## ▶️ How to Run the Inventory Manager (Week 3)
+
+1. 🧱 Setup Virtual Environment
+```bash
+python3 -m venv venv
+source venv/bin/activate    # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+2. 🏃 Run the System
+```bash
+python Week-3/main.py
 ```

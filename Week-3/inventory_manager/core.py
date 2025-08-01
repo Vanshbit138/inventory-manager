@@ -33,19 +33,45 @@ class Inventory:
         product_type = row.get("type", "").strip().lower()
 
         if product_type == "food":
-            return FoodProduct(**base_fields, expiry_date=datetime.strptime(row["expiry_date"], "%Y-%m-%d").date())
+            return FoodProduct(
+                **base_fields,
+                expiry_date=datetime.strptime(row["expiry_date"], "%Y-%m-%d").date()
+            )
         elif product_type == "electronic":
-            return ElectronicProduct(**base_fields, warranty_period=int(row["warranty_period"]))
+            return ElectronicProduct(
+                **base_fields,
+                warranty_period=int(row["warranty_period"])
+            )
         elif product_type == "book":
-            return BookProduct(**base_fields, author=row["author"], pages=int(row["pages"]))
+            return BookProduct(
+                **base_fields,
+                author=row["author"],
+                pages=int(row["pages"])
+            )
         else:
             return Product(**base_fields)
 
     def generate_report(self) -> None:
-        """Prints inventory and writes low stock report."""
+        """Generates enhanced inventory summary report."""
         print("\nINVENTORY REPORT")
+        total_value = 0
+        total_quantity = 0
+        max_value = 0
+        max_product = None
+
         for product in self.products:
-            print(f"- {product.product_name}: {product.quantity} x ₹{product.price:.2f} = ₹{product.get_total_value():.2f}")
-        total = sum(p.get_total_value() for p in self.products)
-        print(f"\nTotal Inventory Value: ₹{total:.2f}")
+            product_value = product.get_total_value()
+            total_value += product_value
+            total_quantity += product.quantity
+
+            if product_value > max_value:
+                max_value = product_value
+                max_product = product
+
+        print(f"Total Products : {len(self.products)}")
+        print(f"Total Quantity:  {total_quantity}")
+        if max_product:
+            print(f"Highest Sale Product: {max_product.product_name} (₹{max_value:.2f})")
+        print(f"Total Inventory Value: ₹{total_value:.2f}")
+
         write_low_stock_report(self.products, threshold=10)

@@ -3,7 +3,7 @@
 
 📁 Root Project Structure
 
-
+```
 inventory-manager/
 ├── Week-1/                         # Week 1: Git workflow practice
 ├── Week-2/                         # Week 2: Procedural inventory script
@@ -13,7 +13,7 @@ inventory-manager/
 ├── .pre-commit-config.yaml         # Pre-commit hook configuration
 ├── README.md                       # Project documentation (root-level)
 ├── setup.cfg                       # Config for formatters/linters (e.g., black, isort)
-
+```
 
 ## Week 1 - Git Workflow Tasks
 
@@ -172,7 +172,7 @@ This is a Python-based **Inventory Management System** built using **Object-Orie
 ## 📁 Project Structure
 
 
-
+```
 Week-3/
 ├── data/
 │   └── products.csv               # Sample product data including food, books, etc.
@@ -188,3 +188,4 @@ Week-3/
 ├── main.py                       # Entry point script to run inventory system│
 ├── pyproject.toml                # Config for black, ruff, etc.
 ├── requirements.txt              # Python package dependencies
+```

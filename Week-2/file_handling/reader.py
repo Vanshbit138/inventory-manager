@@ -1,10 +1,11 @@
 import csv
 
+
 def read_csv_with_reader():
     """
     Reads a CSV file using csv.reader.
     Each row is returned as a list of values.
-    
+
     Useful for:
     - Simple CSV files without headers
     - Manually handling each column by index
@@ -34,15 +35,11 @@ def write_csv_with_writer():
     """
     Writes data to a CSV file using csv.writer.
     Accepts a list of lists where each inner list is a row.
-    
+
     Useful for:
     - Exporting tabular data without headers
     """
-    data = [
-        ["name", "age", "grade"],
-        ["Alice", 20, "A"],
-        ["Bob", 21, "B"]
-    ]
+    data = [["name", "age", "grade"], ["Alice", 20, "A"], ["Bob", 21, "B"]]
 
     with open("output.csv", "w", newline="") as file:
         writer = csv.writer(file)
@@ -60,7 +57,7 @@ def write_csv_with_dictwriter():
     """
     data = [
         {"name": "Anuj", "age": 20, "grade": "A"},
-        {"name": "Raksha", "age": 21, "grade": "B"}
+        {"name": "Raksha", "age": 21, "grade": "B"},
     ]
 
     with open("output.csv", "w", newline="") as file:

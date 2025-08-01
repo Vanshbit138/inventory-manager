@@ -1,5 +1,3 @@
-
-
 # Set Creation
 print("\n--- Set Creation ---")
 empty_set = set()

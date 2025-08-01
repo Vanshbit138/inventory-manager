@@ -1,49 +1,35 @@
-# A dictionary in Python is a collection of key-value pairs, where each key is unique, and it maps to a corresponding value. It is an unordered, mutable, and indexed data structure.
-
-# Keys: Must be immutable (e.g., strings, numbers, tuples).
-# Values: Can be any data type (numbers, strings, lists, other dictionaries, etc.).
-
-
-d = {"Key1":2,"Key2" :3}
+d = {"Key1": 2, "Key2": 3}
 print(d)
 
 
-dict1 = {
-    "Key1" : 51,
-    "Key2":  52,
-    "key3":  53
-}
+dict1 = {"Key1": 51, "Key2": 52, "key3": 53}
 
 print(dict1)
 print(type(dict1))
 
-#Dictionary Functions
+# Dictionary Functions
 
-d1 = ['a','b','c']
-s = dict.fromkeys(d1,0)
+d1 = ["a", "b", "c"]
+s = dict.fromkeys(d1, 0)
 print(s)
 
 
-d = {'a': 0, 'b': 0, 'c': 0}
-d.pop('a')
+d = {"a": 0, "b": 0, "c": 0}
+d.pop("a")
 print(d)
 
 
-d = {'a': 0, 'b': 0, 'c': 0}
+d = {"a": 0, "b": 0, "c": 0}
 c = d.popitem()
 print(c)
 
 
 # Creating a dictionary
-student = {
-    "name": "Vansh",
-    "age": 21,
-    "courses": ["Math", "Python"]
-}
+student = {"name": "Vansh", "age": 21, "courses": ["Math", "Python"]}
 
 # Accessing values
-print(student["name"])               # Output: Vansh
-print(student.get("age"))           # Output: 21
+print(student["name"])  # Output: Vansh
+print(student.get("age"))  # Output: 21
 print(student.get("grade", "N/A"))  # Output: N/A (default if key doesn't exist)
 
 # Adding or updating key-value pairs

@@ -6,7 +6,7 @@ def demonstrate_list_properties():
     - Can hold heterogeneous data types
     - Support indexing and slicing
     """
-    my_list = [1, 2, 3.121, "Bharat", True, False, 2+6j, [1, 2, 3, 4], [5, 6, 6, 1]]
+    my_list = [1, 2, 3.121, "Bharat", True, False, 2 + 6j, [1, 2, 3, 4], [5, 6, 6, 1]]
     print(type(my_list))
     print(my_list)
 
@@ -66,7 +66,7 @@ def demonstrate_list_comprehension():
     - Squaring numbers from 1 to 10
     - Filtering even numbers from 1 to 20
     """
-    squares = [i ** 2 for i in range(1, 11)]
+    squares = [i**2 for i in range(1, 11)]
     print("Squares:", squares)
 
     evens = [i for i in range(1, 21) if i % 2 == 0]

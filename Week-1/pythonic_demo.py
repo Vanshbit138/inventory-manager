@@ -1,14 +1,13 @@
-#Using For Loop:
+# Using For Loop:
 squares = []
 for i in range(5):
     squares.append(i * i)
 print(squares)  # [0, 1, 4, 9, 16]
 
 
-#Pythonic Version:
+# Pythonic Version:
 squares = [i * i for i in range(5)]
 print(squares)  # [0, 1, 4, 9, 16]
-
 
 
 """
@@ -17,6 +16,7 @@ pythonic_demo.py
 Demonstrates Pythonic coding style with list comprehensions,
 equality vs identity, and Zen of Python principles.
 """
+
 
 def get_even_numbers(numbers: list[int]) -> list[int]:
     """

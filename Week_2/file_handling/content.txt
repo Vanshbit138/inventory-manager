@@ -1,0 +1,15 @@
+🔸 1. What is File I/O in Python?
+File I/O (Input/Output) refers to reading data from files and writing data to files. This allows your program to persist data beyond a single runtime. You can read from text files, write logs, store configs, or interact with exported data.
+
+🔸 2. Why use File I/O?
+Imagine you’re building a script that collects student data. Without file I/O, that data disappears once the program ends. With file I/O, you can store it in a file, read it back later, and share it with others.
+
+🔸 3. How to Use with open(...) as f Safely?
+Python provides the with open(...) as f: syntax as a context manager, which:
+
+Opens a file
+
+Ensures it gets automatically closed (no memory leak)
+
+Allows safe reading/writing even if exceptions occur
+

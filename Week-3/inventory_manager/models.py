@@ -44,8 +44,9 @@ class ElectronicProduct(Product):
 
 class BookProduct(Product):
     """Book with author and pages."""
-    author: str
+    author: str = Field(..., min_length=1)
     pages: int = Field(..., gt=0)
+
 
     @field_validator("author")
     @classmethod

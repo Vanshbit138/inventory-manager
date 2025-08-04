@@ -174,8 +174,43 @@ This is a Python-based **Inventory Management System** built using **Object-Orie
 
 ---
 
-## 📁 Project Structure
+## ⚙️ Prerequisites
 
+- Python 3.10 or higher
+- `pip` (Python package manager)
+
+---
+
+## 📦 Installation & Setup
+
+1. **Clone the repository** (if applicable):
+   ```bash
+   git clone <repo-url>
+   cd Week-3
+   ```
+
+2. **Create and activate a virtual environment**:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate       # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install required dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+---
+
+## ▶️ How to Run the Inventory Manager
+
+```bash
+python main.py
+```
+
+---
+
+## 📁 Project Structure
 
 ```
 Week-3/
@@ -189,21 +224,60 @@ Week-3/
 │   └── utils.py                  # Logging and reporting utilities
 │
 ├── venv/                         # (Optional) Virtual environment for dependencies
-│
-├── main.py                       # Entry point script to run inventory system│
-├── pyproject.toml                # Config for black, ruff, etc.
+├── error.log                     # Logs any parsing or runtime issues
+├── low_stock_report.txt          # Auto-generated report for low stock items
+├── main.py                       # Entry point script to run inventory system
 ├── requirements.txt              # Python package dependencies
+├── pyproject.toml                # Code format/linting config (black, ruff, etc.)
+├── .pre-commit-config.yaml       # Pre-commit hook config
+├── README.md                     # Project overview and setup
+└── setup.cfg                     # Packaging config
 ```
 
-## ▶️ How to Run the Inventory Manager (Week 3)
+---
 
-1. 🧱 Setup Virtual Environment
-```bash
-python3 -m venv venv
-source venv/bin/activate    # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+## 📑 Sample CSV Format
+
+The `data/products.csv` should have headers like below:
+
+```csv
+product_id,product_name,type,price,quantity,expiry_date,warranty_period,author,pages
+101,Milk,food,45.0,20,2025-08-30,,,
+102,Laptop,electronic,60000.0,5,,12,,
+103,Python 101,book,399.0,15,,,John Doe,320
 ```
-2. 🏃 Run the System
+
+- `type` must be one of: `food`, `electronic`, `book`
+- Fields like `expiry_date`, `warranty_period`, `author`, `pages` are conditional based on product type.
+
+---
+
+## 🧾 Output Files
+
+- **Low Stock Report**: Auto-generated in `low_stock_report.txt` for products with quantity below threshold (default = 10).
+- **Error Logs**: Any data parsing or runtime issues are logged in `error.log`.
+
+---
+
+## 🧹 Code Formatting & Linting
+
+This project uses the following tools:
+
+- **black** for formatting
+- **ruff** for linting
+
+### Run Formatters:
 ```bash
-python Week-3/main.py
+black .
+ruff check .
 ```
+
+Pre-commit hooks are also configured via `.pre-commit-config.yaml`.
+
+---
+
+## 🤝 Contribution
+
+New contributors or team members can follow the setup guide above to get started quickly. Code is modular, and extending support for more product types is easy via subclassing `Product`.
+
+---

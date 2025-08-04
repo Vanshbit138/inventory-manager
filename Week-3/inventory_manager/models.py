@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Optional
 from datetime import date
 
@@ -16,10 +16,25 @@ class Product(BaseModel):
         """Calculate total value of this product."""
         return self.price * self.quantity
 
+    @field_validator("product_name")
+    @classmethod
+    def name_must_not_be_blank(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Product name cannot be blank or whitespace.")
+        return v
+
 
 class FoodProduct(Product):
     """Product with expiry information."""
     expiry_date: date
+
+    @field_validator("expiry_date")
+    @classmethod
+    def validate_expiry_date(cls, v: date) -> date:
+        if v < date.today():
+            raise ValueError("Expiry date cannot be in the past")
+        return v
 
 
 class ElectronicProduct(Product):
@@ -31,3 +46,11 @@ class BookProduct(Product):
     """Book with author and pages."""
     author: str
     pages: int = Field(..., gt=0)
+
+    @field_validator("author")
+    @classmethod
+    def validate_author(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Author name cannot be blank or whitespace.")
+        return v

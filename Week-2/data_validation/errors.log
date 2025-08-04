@@ -1,3 +1,0 @@
-ERROR:root:Line 3: {'product_id': '102', 'product_name': 'Bananas', 'quantity': 'ten', 'price': '1.2'} - quantity: Input should be a valid integer, unable to parse string as an integer
-ERROR:root:Line 4: {'product_id': '103', 'product_name': 'Oranges', 'quantity': '-3', 'price': '0.8'} - quantity: Value error, Quantity must be non-negative
-ERROR:root:Line 6: {'product_id': '105', 'product_name': 'Mangoes', 'quantity': '8', 'price': '-1.0'} - price: Value error, Price must be a positive number

@@ -1,52 +1,31 @@
+# tests/test_product.py
+
 from datetime import date, timedelta
 import pytest
 from pydantic import ValidationError
+from inventory_manager.models import Product, FoodProduct, ElectronicProduct, BookProduct
 
-from inventory_manager.models import (
-    Product,
-    FoodProduct,
-    ElectronicProduct,
-    BookProduct,
-)
 
-# --------- Validity Tests ---------
+# --------- Total Value Tests (Refactored with Fixtures) ---------
 
-def test_product_total_value():
-    product = Product(product_id=1, product_name="Notebook", price=100.0, quantity=5)
-    assert product.get_total_value() == 500.0
+def test_product_total_value(sample_product):
+    # Arrange done by fixture
+    # Act
+    total = sample_product.get_total_value()
+    # Assert
+    assert total == 500.0
 
-def test_food_product_total_value():
-    food = FoodProduct(
-        product_id=2,
-        product_name="Milk",
-        price=50.0,
-        quantity=2,
-        expiry_date=date.today() + timedelta(days=10)
-    )
-    assert food.get_total_value() == 100.0
+def test_food_product_total_value(sample_food_product):
+    assert sample_food_product.get_total_value() == 100.0
 
-def test_electronic_product_total_value():
-    electronic = ElectronicProduct(
-        product_id=3,
-        product_name="Headphones",
-        price=1500.0,
-        quantity=1,
-        warranty_period=2
-    )
-    assert electronic.get_total_value() == 1500.0
+def test_electronic_product_total_value(sample_electronic_product):
+    assert sample_electronic_product.get_total_value() == 1500.0
 
-def test_book_product_total_value():
-    book = BookProduct(
-        product_id=4,
-        product_name="Python 101",
-        price=250.0,
-        quantity=3,
-        author="John Doe",
-        pages=300
-    )
-    assert book.get_total_value() == 750.0
+def test_book_product_total_value(sample_book_product):
+    assert sample_book_product.get_total_value() == 750.0
 
-# --------- Edge Case Tests ---------
+
+# --------- Edge Case Tests (Intentionally Not Using Fixtures) ---------
 
 def test_product_zero_price():
     with pytest.raises(ValidationError):

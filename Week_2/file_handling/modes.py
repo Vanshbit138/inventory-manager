@@ -30,7 +30,7 @@ with open("example.txt", "a") as f:
 
 # 4. 'x' – Exclusive Creation Mode
 #    Use when you want to create a new file.
-#    Throws FileExistsError if the file already exists.    
+#    Throws FileExistsError if the file already exists.
 
 try:
     with open("example.txt", "x") as f:
@@ -55,7 +55,7 @@ with open("example.txt", "r+") as f:
 #    Can read and write
 #    Writes are always appended at the end
 #    File is created if not present
-#    Doesn’t truncate    
+#    Doesn’t truncate
 
 
 with open("example.txt", "a+") as f:

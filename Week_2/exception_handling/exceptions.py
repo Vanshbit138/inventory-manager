@@ -1,5 +1,5 @@
 # 🔸 1. What is an Exception?
-# An exception is a runtime error that disrupts the normal flow of your Python program. 
+# An exception is a runtime error that disrupts the normal flow of your Python program.
 # For example, dividing by zero or trying to open a file that doesn’t exist.
 
 
@@ -21,7 +21,6 @@
 #     print("File does not exist.")
 
 
-
 # try:
 #     num = int(input("Enter number: "))
 #     print(100 / num)
@@ -33,12 +32,12 @@
 
 def process_numbers(filename):
     try:
-        with open(filename, 'r') as file:
+        with open(filename, "r") as file:
             lines = file.readlines()
             print(type(lines))
             for i, line in enumerate(lines, start=1):
                 line = line.strip()
-                
+
                 if not line:
                     print(f"Line {i}: Skipping empty line")
                     continue
@@ -56,6 +55,6 @@ def process_numbers(filename):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
+
 # Run it
 process_numbers("numbers.txt")
-

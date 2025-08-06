@@ -2,11 +2,18 @@
 
 import pytest
 from datetime import date, timedelta
-from inventory_manager.models import Product, FoodProduct, ElectronicProduct, BookProduct
+from inventory_manager.models import (
+    Product,
+    FoodProduct,
+    ElectronicProduct,
+    BookProduct,
+)
+
 
 @pytest.fixture
 def sample_product():
     return Product(product_id=1, product_name="Notebook", price=100.0, quantity=5)
+
 
 @pytest.fixture
 def sample_food_product():
@@ -15,8 +22,9 @@ def sample_food_product():
         product_name="Milk",
         price=50.0,
         quantity=2,
-        expiry_date=date.today() + timedelta(days=10)
+        expiry_date=date.today() + timedelta(days=10),
     )
+
 
 @pytest.fixture
 def sample_electronic_product():
@@ -25,8 +33,9 @@ def sample_electronic_product():
         product_name="Headphones",
         price=1500.0,
         quantity=1,
-        warranty_period=2
+        warranty_period=2,
     )
+
 
 @pytest.fixture
 def sample_book_product():
@@ -36,5 +45,5 @@ def sample_book_product():
         price=250.0,
         quantity=3,
         author="John Doe",
-        pages=300
+        pages=300,
     )

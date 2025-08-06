@@ -20,3 +20,5 @@ coverage.xml
 *.cover
 .hypothesis/
 pytestdebug.log
+.coverage
+.ruff_cache

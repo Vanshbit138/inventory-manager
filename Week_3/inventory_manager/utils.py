@@ -1,6 +1,7 @@
 from typing import List
 from inventory_manager.models import Product
 
+
 def log_error(message: str) -> None:
     """Logs parsing/validation errors."""
     with open("error.log", "a") as f:
@@ -15,4 +16,3 @@ def write_low_stock_report(products: List[Product], threshold: int = 10) -> None
         for p in products:
             if p.quantity < threshold:
                 f.write(f"{p.product_name} (ID: {p.product_id}) — Qty: {p.quantity}\n")
-

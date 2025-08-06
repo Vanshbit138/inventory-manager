@@ -92,3 +92,11 @@ class Inventory:
 
         except Exception as e:
             log_error(f"[Report Error] Failed to generate inventory report: {e}")
+     
+    def get_inventory_value(self) -> float:
+        """Returns total inventory value (used in testing)."""
+        try:
+            return sum(product.get_total_value() for product in self.products)
+        except Exception as e:
+            log_error(f"[Value Calculation Error] Failed to calculate inventory value: {e}")
+            return 0.0

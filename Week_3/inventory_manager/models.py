@@ -1,10 +1,10 @@
 from pydantic import BaseModel, Field, ConfigDict, field_validator
-from typing import Optional
 from datetime import date
 
 
 class Product(BaseModel):
     """Base product class with shared validation."""
+
     model_config = ConfigDict(strict=True)
 
     product_id: int = Field(..., ge=1)
@@ -27,6 +27,7 @@ class Product(BaseModel):
 
 class FoodProduct(Product):
     """Product with expiry information."""
+
     expiry_date: date
 
     @field_validator("expiry_date")
@@ -39,14 +40,15 @@ class FoodProduct(Product):
 
 class ElectronicProduct(Product):
     """Product with warranty."""
+
     warranty_period: int = Field(..., gt=0)  # months
 
 
 class BookProduct(Product):
     """Book with author and pages."""
+
     author: str = Field(..., min_length=1)
     pages: int = Field(..., gt=0)
-
 
     @field_validator("author")
     @classmethod

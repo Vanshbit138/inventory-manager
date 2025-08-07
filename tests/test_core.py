@@ -7,9 +7,7 @@ from inventory_manager.models import FoodProduct, BookProduct, Product
 def test_get_inventory_value(sample_product, sample_food_product, sample_book_product):
     """
     Unit test for Inventory.get_inventory_value().
-
-    This test verifies that the inventory value is correctly calculated as the sum of
-    get_total_value() for all products in the inventory.
+    Verifies the total value is correctly summed from all products.
     """
     inventory = Inventory()
     inventory.products.extend(
@@ -25,10 +23,8 @@ def test_get_inventory_value(sample_product, sample_food_product, sample_book_pr
 
 def test_get_inventory_value_handles_exception():
     """
-    Unit test for Inventory.get_inventory_value() error handling.
-
     Simulates a product that raises an exception during value calculation.
-    Verifies that the method returns 0.0 and handles the error gracefully.
+    Verifies fallback to 0.0 and graceful handling.
     """
     inventory = Inventory()
     faulty_product = MagicMock()
@@ -37,139 +33,131 @@ def test_get_inventory_value_handles_exception():
     assert inventory.get_inventory_value() == 0.0
 
 
-def test_parse_row_food_product():
+@pytest.mark.parametrize(
+    "row, expected_type",
+    [
+        (
+            {
+                "product_id": "1",
+                "product_name": "Milk",
+                "price": "50.0",
+                "quantity": "10",
+                "type": "food",
+                "expiry_date": "2025-12-31",
+            },
+            FoodProduct,
+        ),
+        (
+            {
+                "product_id": "2",
+                "product_name": "Python",
+                "price": "100.0",
+                "quantity": "5",
+                "type": "book",
+                "author": "Alice",
+                "pages": "300",
+            },
+            BookProduct,
+        ),
+        (
+            {
+                "product_id": "3",
+                "product_name": "Random",
+                "price": "100.0",
+                "quantity": "3",
+                "type": "unknown",
+            },
+            Product,
+        ),
+    ],
+)
+def test_parse_row_valid_types(row, expected_type):
     """
-    Unit test for Inventory._parse_row() with 'food' type row.
-
-    Verifies that a food product row is parsed correctly into a FoodProduct instance.
+    Parametrized test for _parse_row() validating correct product type instantiation.
     """
     inventory = Inventory()
-    row = {
-        "product_id": "1",
-        "product_name": "Milk",
-        "price": "50.0",
-        "quantity": "10",
-        "type": "food",
-        "expiry_date": "2025-12-31",
-    }
     product = inventory._parse_row(row)
-    assert isinstance(product, FoodProduct)
+    assert isinstance(product, expected_type)
 
 
-def test_parse_row_book_product():
+@pytest.mark.parametrize(
+    "row, expected_msg",
+    [
+        (
+            {
+                "product_id": "4",
+                "product_name": "Laptop",
+                "price": "50000",
+                # Missing quantity
+                "type": "electronic",
+                "warranty_period": "12",
+            },
+            "Missing required field",
+        ),
+        (
+            {
+                "product_id": "5",
+                "product_name": "Table",
+                "price": "NaN",
+                "quantity": "2",
+                "type": "book",
+                "author": "Bob",
+                "pages": "200",
+            },
+            "Invalid data format",
+        ),
+    ],
+)
+def test_parse_row_invalid_fields(row, expected_msg):
     """
-    Unit test for Inventory._parse_row() with 'book' type row.
-
-    Verifies that a book product row is parsed correctly into a BookProduct instance.
-    """
-    inventory = Inventory()
-    row = {
-        "product_id": "2",
-        "product_name": "Python",
-        "price": "100.0",
-        "quantity": "5",
-        "type": "book",
-        "author": "Alice",
-        "pages": "300",
-    }
-    product = inventory._parse_row(row)
-    assert isinstance(product, BookProduct)
-
-
-def test_parse_row_unknown_type():
-    """
-    Unit test for Inventory._parse_row() with unknown product type.
-
-    Verifies that unknown types default to base Product instance.
-    """
-    inventory = Inventory()
-    row = {
-        "product_id": "3",
-        "product_name": "Random",
-        "price": "100.0",
-        "quantity": "3",
-        "type": "unknown",
-    }
-    product = inventory._parse_row(row)
-    assert isinstance(product, Product)
-
-
-def test_parse_row_missing_field():
-    """
-    Unit test for Inventory._parse_row() with missing fields.
-
-    Verifies that ValueError is raised when a required field is missing.
+    Parametrized test for invalid data in _parse_row() raising ValueError.
     """
     inventory = Inventory()
-    row = {
-        "product_id": "4",
-        "product_name": "Laptop",
-        "price": "50000",
-        # Missing quantity
-        "type": "electronic",
-        "warranty_period": "12",
-    }
-    with pytest.raises(ValueError, match="Missing required field"):
-        inventory._parse_row(row)
-
-
-def test_parse_row_invalid_price():
-    """
-    Unit test for Inventory._parse_row() with invalid data types.
-
-    Verifies that a ValueError is raised when data parsing (e.g., float conversion) fails.
-    """
-    inventory = Inventory()
-    row = {
-        "product_id": "5",
-        "product_name": "Table",
-        "price": "NaN",
-        "quantity": "2",
-        "type": "book",
-        "author": "Bob",
-        "pages": "200",
-    }
-    with pytest.raises(ValueError, match="Invalid data format"):
+    with pytest.raises(ValueError, match=expected_msg):
         inventory._parse_row(row)
 
 
 def test_parse_row_raises_runtime_error():
     """
-    Unit test for Inventory._parse_row() handling completely invalid rows.
-
-    Verifies that a RuntimeError is raised when row is None or completely malformed.
+    Verifies RuntimeError is raised when _parse_row() receives invalid input like None.
     """
     inventory = Inventory()
-    row = None  # Will cause exception
+    row = None
     with pytest.raises(RuntimeError, match="Unexpected error in _parse_row"):
         inventory._parse_row(row)
 
 
-def test_load_from_csv_reads_valid_products(tmp_path):
+@pytest.mark.parametrize(
+    "csv_content, expected_type",
+    [
+        (
+            "product_id,product_name,price,quantity,type,expiry_date\n"
+            "1,Apple,10.0,20,food,2025-12-31\n",
+            FoodProduct,
+        ),
+        (
+            "product_id,product_name,price,quantity,type,author,pages\n"
+            "2,Book,30.0,5,book,Alice,300\n",
+            BookProduct,
+        ),
+    ],
+)
+def test_load_from_csv_reads_valid_products(csv_content, expected_type, tmp_path):
     """
-    Unit test for Inventory.load_from_csv() with a valid CSV file.
-
-    Verifies that valid CSV content is parsed into the appropriate product instances.
+    Parametrized test for load_from_csv() reading and parsing valid products.
     """
-    csv_content = """product_id,product_name,price,quantity,type,expiry_date
-1,Apple,10.0,20,food,2025-12-31
-"""
-    file_path = tmp_path / "valid.csv"
+    file_path = tmp_path / "test.csv"
     file_path.write_text(csv_content)
-
     inventory = Inventory()
     inventory.load_from_csv(str(file_path))
-
     assert len(inventory.products) == 1
-    assert isinstance(inventory.products[0], FoodProduct)
+    assert isinstance(inventory.products[0], expected_type)
 
 
 @patch("inventory_manager.core.log_error")
 def test_load_from_csv_file_not_found(mock_log):
     """
-    Unit test for Inventory.load_from_csv() with non-existent file.
-
-    Verifies that missing file errors are logged appropriately.
+    Verifies missing file logs an error.
     """
     inventory = Inventory()
     inventory.load_from_csv("non_existent.csv")
@@ -179,13 +167,10 @@ def test_load_from_csv_file_not_found(mock_log):
 @patch("inventory_manager.core.log_error")
 def test_load_from_csv_unexpected_error(mock_log, tmp_path):
     """
-    Unit test for Inventory.load_from_csv() with unreadable file.
-
-    Verifies that unexpected errors (e.g., binary corruption) are logged.
+    Verifies malformed CSV logs an unexpected error.
     """
     file_path = tmp_path / "bad.csv"
-    file_path.write_text("invalid\x00text")  # Invalid chars
-
+    file_path.write_text("invalid\x00text")
     inventory = Inventory()
     inventory.load_from_csv(str(file_path))
     assert mock_log.call_count == 1
@@ -195,10 +180,7 @@ def test_load_from_csv_unexpected_error(mock_log, tmp_path):
 @patch("inventory_manager.core.write_low_stock_report")
 def test_generate_report_success(mock_write, capsys, sample_product):
     """
-    Unit test for Inventory.generate_report().
-
-    Verifies that report is printed and low-stock report is written.
-    Uses capsys to capture stdout and assert report contents.
+    Verifies report prints expected values and calls write_low_stock_report().
     """
     inventory = Inventory()
     inventory.products.append(sample_product)
@@ -213,9 +195,7 @@ def test_generate_report_success(mock_write, capsys, sample_product):
 @patch("inventory_manager.core.log_error")
 def test_generate_report_logs_error(mock_log, mock_write, sample_product):
     """
-    Unit test for Inventory.generate_report() error handling.
-
-    Verifies that any failure in writing low stock report is logged properly.
+    Verifies that errors in report generation are logged correctly.
     """
     inventory = Inventory()
     inventory.products.append(sample_product)

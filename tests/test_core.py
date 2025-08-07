@@ -5,7 +5,12 @@ from inventory_manager.models import FoodProduct, BookProduct, Product
 
 
 def test_get_inventory_value(sample_product, sample_food_product, sample_book_product):
-    """Test inventory value calculation from products."""
+    """
+    Unit test for Inventory.get_inventory_value().
+
+    This test verifies that the inventory value is correctly calculated as the sum of
+    get_total_value() for all products in the inventory.
+    """
     inventory = Inventory()
     inventory.products.extend(
         [sample_product, sample_food_product, sample_book_product]
@@ -19,7 +24,12 @@ def test_get_inventory_value(sample_product, sample_food_product, sample_book_pr
 
 
 def test_get_inventory_value_handles_exception():
-    """Test get_inventory_value returns 0.0 on error."""
+    """
+    Unit test for Inventory.get_inventory_value() error handling.
+
+    Simulates a product that raises an exception during value calculation.
+    Verifies that the method returns 0.0 and handles the error gracefully.
+    """
     inventory = Inventory()
     faulty_product = MagicMock()
     faulty_product.get_total_value.side_effect = Exception("Boom")
@@ -28,7 +38,11 @@ def test_get_inventory_value_handles_exception():
 
 
 def test_parse_row_food_product():
-    """Test parsing of food product row."""
+    """
+    Unit test for Inventory._parse_row() with 'food' type row.
+
+    Verifies that a food product row is parsed correctly into a FoodProduct instance.
+    """
     inventory = Inventory()
     row = {
         "product_id": "1",
@@ -43,7 +57,11 @@ def test_parse_row_food_product():
 
 
 def test_parse_row_book_product():
-    """Test parsing of book product row."""
+    """
+    Unit test for Inventory._parse_row() with 'book' type row.
+
+    Verifies that a book product row is parsed correctly into a BookProduct instance.
+    """
     inventory = Inventory()
     row = {
         "product_id": "2",
@@ -59,7 +77,11 @@ def test_parse_row_book_product():
 
 
 def test_parse_row_unknown_type():
-    """Test parsing with unknown product type returns base Product."""
+    """
+    Unit test for Inventory._parse_row() with unknown product type.
+
+    Verifies that unknown types default to base Product instance.
+    """
     inventory = Inventory()
     row = {
         "product_id": "3",
@@ -73,7 +95,11 @@ def test_parse_row_unknown_type():
 
 
 def test_parse_row_missing_field():
-    """Test _parse_row raises ValueError for missing field."""
+    """
+    Unit test for Inventory._parse_row() with missing fields.
+
+    Verifies that ValueError is raised when a required field is missing.
+    """
     inventory = Inventory()
     row = {
         "product_id": "4",
@@ -88,7 +114,11 @@ def test_parse_row_missing_field():
 
 
 def test_parse_row_invalid_price():
-    """Test _parse_row raises ValueError for bad price format."""
+    """
+    Unit test for Inventory._parse_row() with invalid data types.
+
+    Verifies that a ValueError is raised when data parsing (e.g., float conversion) fails.
+    """
     inventory = Inventory()
     row = {
         "product_id": "5",
@@ -104,7 +134,11 @@ def test_parse_row_invalid_price():
 
 
 def test_parse_row_raises_runtime_error():
-    """Test _parse_row catches unexpected errors."""
+    """
+    Unit test for Inventory._parse_row() handling completely invalid rows.
+
+    Verifies that a RuntimeError is raised when row is None or completely malformed.
+    """
     inventory = Inventory()
     row = None  # Will cause exception
     with pytest.raises(RuntimeError, match="Unexpected error in _parse_row"):
@@ -112,7 +146,11 @@ def test_parse_row_raises_runtime_error():
 
 
 def test_load_from_csv_reads_valid_products(tmp_path):
-    """Test valid CSV is parsed into products."""
+    """
+    Unit test for Inventory.load_from_csv() with a valid CSV file.
+
+    Verifies that valid CSV content is parsed into the appropriate product instances.
+    """
     csv_content = """product_id,product_name,price,quantity,type,expiry_date
 1,Apple,10.0,20,food,2025-12-31
 """
@@ -128,7 +166,11 @@ def test_load_from_csv_reads_valid_products(tmp_path):
 
 @patch("inventory_manager.core.log_error")
 def test_load_from_csv_file_not_found(mock_log):
-    """Test file not found error is logged."""
+    """
+    Unit test for Inventory.load_from_csv() with non-existent file.
+
+    Verifies that missing file errors are logged appropriately.
+    """
     inventory = Inventory()
     inventory.load_from_csv("non_existent.csv")
     mock_log.assert_called_once_with("[File Error] File not found: non_existent.csv")
@@ -136,7 +178,11 @@ def test_load_from_csv_file_not_found(mock_log):
 
 @patch("inventory_manager.core.log_error")
 def test_load_from_csv_unexpected_error(mock_log, tmp_path):
-    """Test load_from_csv handles unknown file errors."""
+    """
+    Unit test for Inventory.load_from_csv() with unreadable file.
+
+    Verifies that unexpected errors (e.g., binary corruption) are logged.
+    """
     file_path = tmp_path / "bad.csv"
     file_path.write_text("invalid\x00text")  # Invalid chars
 
@@ -148,7 +194,12 @@ def test_load_from_csv_unexpected_error(mock_log, tmp_path):
 
 @patch("inventory_manager.core.write_low_stock_report")
 def test_generate_report_success(mock_write, capsys, sample_product):
-    """Test successful report generation output."""
+    """
+    Unit test for Inventory.generate_report().
+
+    Verifies that report is printed and low-stock report is written.
+    Uses capsys to capture stdout and assert report contents.
+    """
     inventory = Inventory()
     inventory.products.append(sample_product)
     inventory.generate_report()
@@ -161,7 +212,11 @@ def test_generate_report_success(mock_write, capsys, sample_product):
 @patch("inventory_manager.core.write_low_stock_report", side_effect=Exception("Boom"))
 @patch("inventory_manager.core.log_error")
 def test_generate_report_logs_error(mock_log, mock_write, sample_product):
-    """Test generate_report handles exception gracefully."""
+    """
+    Unit test for Inventory.generate_report() error handling.
+
+    Verifies that any failure in writing low stock report is logged properly.
+    """
     inventory = Inventory()
     inventory.products.append(sample_product)
     inventory.generate_report()

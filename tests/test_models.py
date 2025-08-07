@@ -13,11 +13,13 @@ from inventory_manager.models import (
 
 
 def test_product_total_value():
+    """Test total value calculation for a valid generic product."""
     product = Product(product_id=1, product_name="Notebook", price=100.0, quantity=5)
     assert product.get_total_value() == 500.0
 
 
 def test_food_product_total_value():
+    """Test total value for a valid FoodProduct with a future expiry date."""
     food = FoodProduct(
         product_id=2,
         product_name="Milk",
@@ -29,6 +31,7 @@ def test_food_product_total_value():
 
 
 def test_electronic_product_total_value():
+    """Test total value for a valid ElectronicProduct with a positive warranty."""
     electronic = ElectronicProduct(
         product_id=3,
         product_name="Headphones",
@@ -40,6 +43,7 @@ def test_electronic_product_total_value():
 
 
 def test_book_product_total_value():
+    """Test total value for a valid BookProduct with proper author and page count."""
     book = BookProduct(
         product_id=4,
         product_name="Python 101",
@@ -55,36 +59,43 @@ def test_book_product_total_value():
 
 
 def test_product_zero_price():
+    """Product should raise ValidationError if price is zero."""
     with pytest.raises(ValidationError):
         Product(product_id=5, product_name="Freebie", price=0.0, quantity=10)
 
 
 def test_product_negative_quantity():
+    """Product should raise ValidationError if quantity is negative."""
     with pytest.raises(ValidationError):
         Product(product_id=6, product_name="Pen", price=10.0, quantity=-2)
 
 
 def test_product_blank_name():
+    """Product should raise ValidationError if name is blank."""
     with pytest.raises(ValidationError):
         Product(product_id=7, product_name="", price=10.0, quantity=1)
 
 
 def test_product_whitespace_name():
+    """Product should raise ValidationError if name is only whitespace."""
     with pytest.raises(ValidationError):
         Product(product_id=13, product_name="   ", price=20.0, quantity=1)
 
 
 def test_product_zero_id():
+    """Product should raise ValidationError if product_id is zero."""
     with pytest.raises(ValidationError):
         Product(product_id=0, product_name="Zero", price=10.0, quantity=1)
 
 
 def test_product_negative_id():
+    """Product should raise ValidationError if product_id is negative."""
     with pytest.raises(ValidationError):
         Product(product_id=-1, product_name="Negative", price=10.0, quantity=1)
 
 
 def test_food_product_expired_date():
+    """FoodProduct should raise ValidationError if expiry date is in the past."""
     with pytest.raises(ValidationError):
         FoodProduct(
             product_id=8,
@@ -96,6 +107,7 @@ def test_food_product_expired_date():
 
 
 def test_electronic_product_zero_warranty():
+    """ElectronicProduct should raise ValidationError if warranty is zero."""
     with pytest.raises(ValidationError):
         ElectronicProduct(
             product_id=9,
@@ -107,6 +119,7 @@ def test_electronic_product_zero_warranty():
 
 
 def test_electronic_product_negative_warranty():
+    """ElectronicProduct should raise ValidationError if warranty is negative."""
     with pytest.raises(ValidationError):
         ElectronicProduct(
             product_id=10,
@@ -118,6 +131,7 @@ def test_electronic_product_negative_warranty():
 
 
 def test_book_product_zero_pages():
+    """BookProduct should raise ValidationError if page count is zero."""
     with pytest.raises(ValidationError):
         BookProduct(
             product_id=11,
@@ -130,6 +144,7 @@ def test_book_product_zero_pages():
 
 
 def test_book_product_blank_author():
+    """BookProduct should raise ValidationError if author name is blank."""
     with pytest.raises(ValidationError):
         BookProduct(
             product_id=12,
@@ -142,6 +157,7 @@ def test_book_product_blank_author():
 
 
 def test_book_product_whitespace_author():
+    """BookProduct should raise ValidationError if author name is only whitespace."""
     with pytest.raises(ValidationError):
         BookProduct(
             product_id=14,

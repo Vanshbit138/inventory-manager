@@ -1,7 +1,6 @@
 from datetime import date, timedelta
 import pytest
 from pydantic import ValidationError
-
 from inventory_manager.models import (
     Product,
     FoodProduct,
@@ -13,13 +12,19 @@ from inventory_manager.models import (
 
 
 def test_product_total_value():
-    """Test total value calculation for a valid generic product."""
+    """
+    Test that the total value of a valid generic Product is calculated correctly.
+
+    Expected: price * quantity.
+    """
     product = Product(product_id=1, product_name="Notebook", price=100.0, quantity=5)
     assert product.get_total_value() == 500.0
 
 
 def test_food_product_total_value():
-    """Test total value for a valid FoodProduct with a future expiry date."""
+    """
+    Test that a valid FoodProduct with a future expiry date calculates total value correctly.
+    """
     food = FoodProduct(
         product_id=2,
         product_name="Milk",
@@ -31,7 +36,9 @@ def test_food_product_total_value():
 
 
 def test_electronic_product_total_value():
-    """Test total value for a valid ElectronicProduct with a positive warranty."""
+    """
+    Test that a valid ElectronicProduct with positive warranty calculates total value correctly.
+    """
     electronic = ElectronicProduct(
         product_id=3,
         product_name="Headphones",
@@ -43,7 +50,9 @@ def test_electronic_product_total_value():
 
 
 def test_book_product_total_value():
-    """Test total value for a valid BookProduct with proper author and page count."""
+    """
+    Test that a valid BookProduct with proper author and page count calculates total value correctly.
+    """
     book = BookProduct(
         product_id=4,
         product_name="Python 101",
@@ -55,47 +64,36 @@ def test_book_product_total_value():
     assert book.get_total_value() == 750.0
 
 
-# --------- Edge Case Tests ---------
+# --------- Parametrized Invalid Product Tests ---------
 
 
-def test_product_zero_price():
-    """Product should raise ValidationError if price is zero."""
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"product_id": 5, "product_name": "Freebie", "price": 0.0, "quantity": 10},
+        {"product_id": 6, "product_name": "Pen", "price": 10.0, "quantity": -2},
+        {"product_id": 7, "product_name": "", "price": 10.0, "quantity": 1},
+        {"product_id": 13, "product_name": "   ", "price": 20.0, "quantity": 1},
+        {"product_id": 0, "product_name": "Zero", "price": 10.0, "quantity": 1},
+        {"product_id": -1, "product_name": "Negative", "price": 10.0, "quantity": 1},
+    ],
+)
+def test_invalid_product_fields(kwargs):
+    """
+    Parametrized test that ensures ValidationError is raised for invalid Product fields:
+    - Zero or negative product_id
+    - Zero price
+    - Negative quantity
+    - Blank or whitespace product name
+    """
     with pytest.raises(ValidationError):
-        Product(product_id=5, product_name="Freebie", price=0.0, quantity=10)
-
-
-def test_product_negative_quantity():
-    """Product should raise ValidationError if quantity is negative."""
-    with pytest.raises(ValidationError):
-        Product(product_id=6, product_name="Pen", price=10.0, quantity=-2)
-
-
-def test_product_blank_name():
-    """Product should raise ValidationError if name is blank."""
-    with pytest.raises(ValidationError):
-        Product(product_id=7, product_name="", price=10.0, quantity=1)
-
-
-def test_product_whitespace_name():
-    """Product should raise ValidationError if name is only whitespace."""
-    with pytest.raises(ValidationError):
-        Product(product_id=13, product_name="   ", price=20.0, quantity=1)
-
-
-def test_product_zero_id():
-    """Product should raise ValidationError if product_id is zero."""
-    with pytest.raises(ValidationError):
-        Product(product_id=0, product_name="Zero", price=10.0, quantity=1)
-
-
-def test_product_negative_id():
-    """Product should raise ValidationError if product_id is negative."""
-    with pytest.raises(ValidationError):
-        Product(product_id=-1, product_name="Negative", price=10.0, quantity=1)
+        Product(**kwargs)
 
 
 def test_food_product_expired_date():
-    """FoodProduct should raise ValidationError if expiry date is in the past."""
+    """
+    Test that a FoodProduct with a past expiry date raises a ValidationError.
+    """
     with pytest.raises(ValidationError):
         FoodProduct(
             product_id=8,
@@ -106,32 +104,43 @@ def test_food_product_expired_date():
         )
 
 
-def test_electronic_product_zero_warranty():
-    """ElectronicProduct should raise ValidationError if warranty is zero."""
+@pytest.mark.parametrize("warranty", [0, -1])
+def test_electronic_product_invalid_warranty(warranty):
+    """
+    Parametrized test that ensures ValidationError is raised for invalid warranty values
+    in ElectronicProduct (0 or negative).
+    """
     with pytest.raises(ValidationError):
         ElectronicProduct(
             product_id=9,
             product_name="Speaker",
             price=2000.0,
             quantity=1,
-            warranty_period=0,
+            warranty_period=warranty,
         )
 
 
-def test_electronic_product_negative_warranty():
-    """ElectronicProduct should raise ValidationError if warranty is negative."""
+@pytest.mark.parametrize("author", ["", "   "])
+def test_book_product_invalid_author(author):
+    """
+    Parametrized test that ensures ValidationError is raised for blank or whitespace-only
+    author names in BookProduct.
+    """
     with pytest.raises(ValidationError):
-        ElectronicProduct(
-            product_id=10,
-            product_name="Monitor",
-            price=7000.0,
+        BookProduct(
+            product_id=12,
+            product_name="Mystery Book",
+            price=120.0,
             quantity=1,
-            warranty_period=-6,
+            author=author,
+            pages=100,
         )
 
 
 def test_book_product_zero_pages():
-    """BookProduct should raise ValidationError if page count is zero."""
+    """
+    Test that a BookProduct with zero pages raises a ValidationError.
+    """
     with pytest.raises(ValidationError):
         BookProduct(
             product_id=11,
@@ -140,30 +149,4 @@ def test_book_product_zero_pages():
             quantity=2,
             author="Ghost Writer",
             pages=0,
-        )
-
-
-def test_book_product_blank_author():
-    """BookProduct should raise ValidationError if author name is blank."""
-    with pytest.raises(ValidationError):
-        BookProduct(
-            product_id=12,
-            product_name="Mystery Book",
-            price=120.0,
-            quantity=1,
-            author="",
-            pages=100,
-        )
-
-
-def test_book_product_whitespace_author():
-    """BookProduct should raise ValidationError if author name is only whitespace."""
-    with pytest.raises(ValidationError):
-        BookProduct(
-            product_id=14,
-            product_name="Mystery Book",
-            price=120.0,
-            quantity=1,
-            author="   ",
-            pages=100,
         )

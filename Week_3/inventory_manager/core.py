@@ -1,7 +1,12 @@
 import csv
 from typing import List, Optional
 from datetime import datetime
-from inventory_manager.models import Product, FoodProduct, ElectronicProduct, BookProduct
+from inventory_manager.models import (
+    Product,
+    FoodProduct,
+    ElectronicProduct,
+    BookProduct,
+)
 from inventory_manager.utils import log_error, write_low_stock_report
 
 
@@ -12,7 +17,7 @@ class Inventory:
     def load_from_csv(self, file_path: str) -> None:
         """Load inventory data and classify product types."""
         try:
-            with open(file_path, newline='', encoding='utf-8') as csvfile:
+            with open(file_path, newline="", encoding="utf-8") as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     try:
@@ -41,28 +46,30 @@ class Inventory:
             if product_type == "food":
                 return FoodProduct(
                     **base_fields,
-                    expiry_date=datetime.strptime(row["expiry_date"], "%Y-%m-%d").date()
+                    expiry_date=datetime.strptime(
+                        row["expiry_date"], "%Y-%m-%d"
+                    ).date(),
                 )
             elif product_type == "electronic":
                 return ElectronicProduct(
-                    **base_fields,
-                    warranty_period=int(row["warranty_period"])
+                    **base_fields, warranty_period=int(row["warranty_period"])
                 )
             elif product_type == "book":
                 return BookProduct(
                     **base_fields,
                     author=row["author"],
-                    pages=int(row["pages"])
+                    pages=int(row["pages"]),
                 )
             else:
+                # Unknown or base type
                 return Product(**base_fields)
 
         except KeyError as e:
-            raise ValueError(f"Missing required field: {e}")
+            raise ValueError(f"Missing required field: {e}") from e
         except ValueError as e:
-            raise ValueError(f"Invalid data format: {e}")
+            raise ValueError(f"Invalid data format: {e}") from e
         except Exception as e:
-            raise RuntimeError(f"Unexpected error in _parse_row: {e}")
+            raise RuntimeError(f"Unexpected error in _parse_row: {e}") from e
 
     def generate_report(self) -> None:
         """Generates enhanced inventory summary report."""
@@ -85,10 +92,25 @@ class Inventory:
             print(f"Total Products : {len(self.products)}")
             print(f"Total Quantity:  {total_quantity}")
             if max_product:
-                print(f"Highest Sale Product: {max_product.product_name} (₹{max_value:.2f})")
+                print(
+                    f"Highest Sale Product: {max_product.product_name} "
+                    f"(₹{max_value:.2f})"
+                )
+            else:
+                print("No products available.")
             print(f"Total Inventory Value: ₹{total_value:.2f}")
 
             write_low_stock_report(self.products, threshold=10)
 
         except Exception as e:
             log_error(f"[Report Error] Failed to generate inventory report: {e}")
+
+    def get_inventory_value(self) -> float:
+        """Returns total inventory value (used in testing)."""
+        try:
+            return sum(product.get_total_value() for product in self.products)
+        except Exception as e:
+            log_error(
+                f"[Value Calculation Error] Failed to calculate inventory value: {e}"
+            )
+            return 0.0

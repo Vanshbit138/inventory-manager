@@ -276,6 +276,66 @@ Pre-commit hooks are also configured via `.pre-commit-config.yaml`.
 
 ---
 
+# Week 4 – Test-Driven Development (TDD) with Pytest
+
+## 📌 Overview
+This week focused on mastering **Test-Driven Development (TDD)** principles using **pytest**.  
+We worked on enhancing the `Inventory Manager` project with a **full test suite**, applying **parametrization**, **fixtures**, **mocking**, and **coverage analysis**.
+
+---
+
+## 🎯 Goals
+- Understand and apply **TDD (Red–Green–Refactor)**.
+- Write **unit tests** for pure functions and methods.
+- Use **pytest fixtures** to reduce duplication.
+- Apply **mocking/patching** for external dependencies like file I/O and logging.
+- Implement **pytest parametrization** for clean, scalable tests.
+
+---
+
+## 📂 Project Structure (Test Files Only)
+```
+tests/
+├── conftest.py # For fixtures 
+├── test_core.py # Tests for core.py with fixtures & parametrization
+├── test_models.py # Tests for Pydantic models
+├── test_models_using_fixtures.py # Model tests with fixtures
+├── test_utils.py # Tests for utility functions
+├── requirements.txt 
+```
+---
+
+## 🚀 How to Run Tests
+```bash
+# Run all tests
+pytest
+
+# Run tests with detailed output
+pytest -v
+
+# Run tests with coverage
+pytest --cov=.
+```
+
+## 📊 Achievements
+✅ 100% coverage for core.py.
+
+✅ Applied fixtures to simplify test setup.
+
+✅ Implemented mocking & patching for external dependencies.
+
+✅ Parametrized repetitive tests for scalability.
+
+✅ Documented tests with clear docstrings.
+
+⚠️ Challenges Faced
+Designing parametrization for complex test cases.
+
+Ensuring mocking did not interfere with test reliability.
+
+Maintaining coverage while refactoring tests.
+
+
 ## 🤝 Contribution
 
 New contributors or team members can follow the setup guide above to get started quickly. Code is modular, and extending support for more product types is easy via subclassing `Product`.

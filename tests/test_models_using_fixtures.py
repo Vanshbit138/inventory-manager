@@ -18,23 +18,29 @@ from inventory_manager.models import (
 
 # --------- Total Value Tests (Refactored with Fixtures) ---------
 
+
 def test_product_total_value(sample_product):
     """Test total value calculation for a generic product using fixture."""
     assert sample_product.get_total_value() == 500.0
+
 
 def test_food_product_total_value(sample_food_product):
     """Test total value calculation for a FoodProduct using fixture."""
     assert sample_food_product.get_total_value() == 100.0
 
+
 def test_electronic_product_total_value(sample_electronic_product):
     """Test total value calculation for an ElectronicProduct using fixture."""
     assert sample_electronic_product.get_total_value() == 1500.0
+
 
 def test_book_product_total_value(sample_book_product):
     """Test total value calculation for a BookProduct using fixture."""
     assert sample_book_product.get_total_value() == 750.0
 
+
 # --------- Parametrized Edge Case Tests ---------
+
 
 @pytest.mark.parametrize(
     "kwargs",
@@ -45,12 +51,13 @@ def test_book_product_total_value(sample_book_product):
         {"product_id": 13, "product_name": "   ", "price": 20.0, "quantity": 1},
         {"product_id": 0, "product_name": "Zero", "price": 10.0, "quantity": 1},
         {"product_id": -1, "product_name": "Negative", "price": 10.0, "quantity": 1},
-    ]
+    ],
 )
 def test_invalid_product_fields(kwargs):
     """Parametrized test for invalid Product fields that should raise ValidationError."""
     with pytest.raises(ValidationError):
         Product(**kwargs)
+
 
 def test_food_product_expired_date():
     """Test that a FoodProduct with a past expiry date raises a validation error."""
@@ -62,6 +69,7 @@ def test_food_product_expired_date():
             quantity=2,
             expiry_date=date.today() - timedelta(days=1),
         )
+
 
 @pytest.mark.parametrize("warranty", [0, -6])
 def test_electronic_product_invalid_warranty(warranty):
@@ -75,6 +83,7 @@ def test_electronic_product_invalid_warranty(warranty):
             warranty_period=warranty,
         )
 
+
 @pytest.mark.parametrize("author", ["", "   "])
 def test_book_product_invalid_author(author):
     """Parametrized test for invalid author names in BookProduct."""
@@ -87,6 +96,7 @@ def test_book_product_invalid_author(author):
             author=author,
             pages=100,
         )
+
 
 def test_book_product_zero_pages():
     """Test that a BookProduct with zero pages raises a validation error."""

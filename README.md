@@ -29,17 +29,6 @@ python main.py
 - **Comprehensive testing**: 99% test coverage with pytest
 - **Clean architecture**: Following SOLID principles
 
-## 🏗️ Architecture
-
-The project follows a modular architecture with clear separation of concerns:
-
-```
-inventory_manager/
-├── core.py          # Main business logic
-├── models.py        # Pydantic data models
-├── utils.py         # Utility functions
-└── __init__.py      # Package initialization
-```
 
 ## 📊 Project Structure
 
@@ -73,10 +62,10 @@ pytest tests/test_core.py -v
 
 Comprehensive documentation is available in the `docs/` folder:
 
-- **[Setup Guide](docs/setup.md)** - Detailed installation and configuration
-- **[Development Journey](docs/development_journey.md)** - Week-by-week learning progress
-- **[Architecture Guide](docs/architecture.md)** - Technical design and patterns
-- **[Testing Strategy](docs/testing.md)** - TDD approach and test coverage
+- **[Setup Guide](docs/SETUP.md)** - Detailed installation and configuration
+- **[Development Journey](docs/DEVELOPMENT.md)** - Week-by-week learning progress
+- **[Architecture Guide](docs/ARCHITECTURE.md)** - Technical design and patterns
+- **[Testing Strategy](docs/TESTING.md)** - TDD approach and test coverage
 
 ## 🛠️ Technology Stack
 
@@ -114,4 +103,4 @@ Project Link: [https://github.com/Vanshbit138/inventory-manager.git](https://git
 
 ---
 
-*Built with ❤️ as part of a comprehensive Python learning journey*
+*Built as part of a comprehensive Python learning journey*

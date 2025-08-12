@@ -7,9 +7,6 @@ from inventory_manager.models import Product
 def get_all_products():
     """
     Get a list of all products in the inventory.
-
-    Returns:
-        Response: JSON array of all product data with status code 200.
     """
     inventory = current_app.config["inventory"]
     return jsonify([p.model_dump() for p in inventory.products])
@@ -19,13 +16,6 @@ def get_all_products():
 def get_product(product_id):
     """
     Retrieve a single product by its product_id.
-
-    Args:
-        product_id (int): The ID of the product to retrieve.
-
-    Returns:
-        Response: JSON representation of the product if found,
-                  otherwise a JSON error message with 404 status.
     """
     inventory = current_app.config["inventory"]
     product = next((p for p in inventory.products if p.product_id == product_id), None)
@@ -38,12 +28,6 @@ def get_product(product_id):
 def add_product():
     """
     Add a new product to the inventory.
-
-    Expects JSON payload with product fields matching the Product model.
-
-    Returns:
-        Response: JSON message confirming addition with status 201,
-                  or JSON error message with status 400 on failure.
     """
     inventory = current_app.config["inventory"]
     try:
@@ -53,3 +37,36 @@ def add_product():
         return jsonify({"message": "Product added"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@products_bp.route("/<int:product_id>", methods=["PUT"])
+def update_product(product_id):
+    """
+    Update an existing product's details.
+    """
+    inventory = current_app.config["inventory"]
+    product = next((p for p in inventory.products if p.product_id == product_id), None)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+
+    try:
+        data = request.get_json()
+        for key, value in data.items():
+            setattr(product, key, value)
+        return jsonify({"message": "Product updated"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@products_bp.route("/<int:product_id>", methods=["DELETE"])
+def delete_product(product_id):
+    """
+    Delete a product from the inventory.
+    """
+    inventory = current_app.config["inventory"]
+    product = next((p for p in inventory.products if p.product_id == product_id), None)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+
+    inventory.products.remove(product)
+    return jsonify({"message": "Product deleted"}), 200

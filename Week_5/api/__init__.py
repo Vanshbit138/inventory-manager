@@ -10,6 +10,6 @@ to product inventory management.
 
 from flask import Blueprint
 
-products_bp = Blueprint("products", __name__)
+products_bp = Blueprint("routes", __name__)
 
-from . import products  # noqa: F401
+from . import routes  # noqa: F401

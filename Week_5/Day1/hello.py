@@ -4,12 +4,12 @@ from flask import Flask
 app = Flask(__name__)
 
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def hello_world():
     """
     Description:
-        This endpoint returns a simple "Hello, World!" message.
-        It demonstrates how a Flask route works and how to handle GET requests.
+        This endpoint handles HTTP GET requests and returns a simple "Hello, World!" message.
+        It serves as a basic example of how Flask routes work and how to define an endpoint.
 
     HTTP Method:
         GET

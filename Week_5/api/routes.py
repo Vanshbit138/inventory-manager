@@ -14,7 +14,7 @@ def get_all_products():
 
 
 @products_bp.route("/<int:product_id>", methods=["GET"])
-def get_product(product_id):
+def get_product(product_id: int):
     """
     Retrieve a single product by its product_id.
     """
@@ -41,7 +41,7 @@ def add_product():
 
 
 @products_bp.route("/<int:product_id>", methods=["PUT"])
-def update_product(product_id):
+def update_product(product_id: int):
     """
     Update an existing product's details with validation.
     """
@@ -72,7 +72,7 @@ def update_product(product_id):
 
 
 @products_bp.route("/<int:product_id>", methods=["DELETE"])
-def delete_product(product_id):
+def delete_product(product_id: int):
     """
     Delete a product from the inventory.
     """

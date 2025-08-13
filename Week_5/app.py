@@ -1,6 +1,11 @@
 from flask import Flask
-from inventory_manager.core import Inventory
+import sys
 import os
+
+# Add the Week_3 directory to Python path so we can import inventory_manager
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "Week_3"))
+
+from inventory_manager.core import Inventory
 
 
 def create_app(test_config=None):
@@ -32,7 +37,7 @@ def create_app(test_config=None):
     app.config["inventory"] = inventory
 
     # Import and register the products blueprint under '/products' URL prefix
-    from .api import products_bp
+    from api import products_bp
 
     app.register_blueprint(products_bp, url_prefix="/products")
 

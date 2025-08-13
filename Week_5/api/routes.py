@@ -1,4 +1,10 @@
 from flask import current_app, jsonify, request
+import sys
+import os
+
+# Add the Week_3 directory to Python path so we can import inventory_manager
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "Week_3"))
+
 from . import products_bp
 from inventory_manager.models import Product
 
@@ -13,7 +19,7 @@ def get_all_products():
 
 
 @products_bp.route("/<int:product_id>", methods=["GET"])
-def get_product(product_id):
+def get_product(product_id: int):
     """
     Retrieve a single product by its product_id.
     """
@@ -40,7 +46,7 @@ def add_product():
 
 
 @products_bp.route("/<int:product_id>", methods=["PUT"])
-def update_product(product_id):
+def update_product(product_id: int):
     """
     Update an existing product's details.
     """
@@ -59,7 +65,7 @@ def update_product(product_id):
 
 
 @products_bp.route("/<int:product_id>", methods=["DELETE"])
-def delete_product(product_id):
+def delete_product(product_id: int):
     """
     Delete a product from the inventory.
     """

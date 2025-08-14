@@ -34,11 +34,18 @@ python main.py
 
 ```
 inventory-manager/
-├── Week-1/              # Git workflow and Python basics
-├── Week-2/              # Data structures and file handling
-├── Week-3/              # OOP implementation
-├── tests/               # Comprehensive test suite
-├── docs/                # Detailed documentation
+├── Week-1/                     # Git workflow and Python basics
+├── Week-2/                     # Data structures and file handling
+├── Week-3/                     # OOP implementation
+├── Week-5/                     # API implementation
+├── tests/                      # Comprehensive test suite
+├── docs/                       # Detailed documentation
+├── .gitignore                  # Git ignore rules for virtual environments, __pycache__, etc.
+├── .pre-commit-config.yaml     # Pre-commit hooks configuration for code quality checks
+├── pyproject.toml              # Project configuration (tool settings, linters, formatters)
+├── pytest.ini                  # Pytest configuration for test discovery and reporting
+├── README.md                   # High-level project overview and instructions
+├── setup.md                    # Local setup guide and development environment instructions
 ```
 
 ## 🧪 Testing

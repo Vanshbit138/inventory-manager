@@ -61,22 +61,71 @@ python main.py
 
 ```
 inventory-manager/
-├── data/
-│   └── products.csv              # Sample product data
-├── docs/                        # Documentation files
-├── inventory_manager/           # Main application package
-│   ├── __init__.py
-│   ├── core.py                 # Business logic
-│   ├── models.py               # Data models
-│   └── utils.py                # Utilities
-├── tests/                      # Test suite
-├── Week-1/                     # Learning progression
-├── Week-2/                     # (weeks show development journey)
-├── Week-3/
-├── main.py                     # Application entry point
-├── requirements.txt            # Dependencies
-└── README.md                   # Project overview
-```
+.
+├── docs
+│   ├── ARCHITECTURE.md
+│   ├── DEVELOPMENT.md
+│   ├── SETUP.md
+│   └── TESTING.md
+├── pyproject.toml
+├── pytest.ini
+├── README.md
+├── setup.cfg
+├── tests
+│   ├── conftest.py
+│   ├── requirements.txt
+│   ├── test_core.py
+│   ├── test_models.py
+│   ├── test_models_using_fixtures.py
+│   └── test_utils.py
+├── Week_1
+│   ├── datatypes_demo.py
+│   ├── main.py
+│   ├── pythonic_demo.py
+│   └── zen.py
+├── Week_2
+│   ├── conditionals_functions.py
+│   ├── data_validation
+│   │   ├── inventory.csv
+│   │   └── process_inventory.py
+│   ├── dicts.py
+│   ├── exception_handling
+│   │   ├── exceptions.py
+│   │   └── numbers.txt
+│   ├── file_handling
+│   │   ├── backup.bin
+│   │   ├── content.txt
+│   │   ├── modes.py
+│   │   ├── output.csv
+│   │   ├── photo.jpeg
+│   │   ├── reader.py
+│   │   ├── students.csv
+│   │   └── students.txt
+│   ├── lists.py
+│   ├── requirements.txt
+│   ├── sets.py
+│   └── tuples.py
+├── Week_3
+│   ├── data
+│   │   └── products.csv
+│   ├── inventory_manager
+│   │   ├── core.py
+│   │   ├── models.py
+│   │   └── utils.py
+│   ├── main.py
+│   ├── pyproject.toml
+│   └── requirements.txt
+└── Week_5
+    ├── api
+    │   ├── __init__.py
+    │   └── routes.py
+    ├── app.py
+    ├── Day1
+    │   ├── hello.py
+    ├── requirements.txt
+    ├── tests
+    │   └── test_routes.py
+  ```
 
 ## 🔧 Configuration
 

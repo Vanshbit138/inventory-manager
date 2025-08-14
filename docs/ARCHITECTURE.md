@@ -2,7 +2,7 @@
 
 This document provides a detailed technical overview of the Inventory Manager's architecture, design patterns, and implementation decisions.
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ### High-Level Overview
 
@@ -26,7 +26,7 @@ inventory_manager/
 └── utils.py            # Utility functions
 ```
 
-## 🎯 Design Principles
+##  Design Principles
 
 ### SOLID Principles Implementation
 
@@ -51,7 +51,7 @@ Interfaces are focused and specific to client needs.
 #### Dependency Inversion Principle (DIP)
 High-level modules don't depend on low-level implementation details.
 
-## 📊 Data Models
+##  Data Models
 
 ### Class Hierarchy
 
@@ -77,7 +77,7 @@ Product (BaseModel)
 - **Serialization**: Easy JSON/dict conversion
 - **Documentation**: Self-documenting models
 
-## 🔧 Core Components
+##  Core Components
 
 ### InventoryManager Class
 
@@ -88,7 +88,7 @@ Product (BaseModel)
 - Manage product operations
 
 
-## 📁 File Structure & Responsibilities
+##  File Structure & Responsibilities
 
 ### core.py
 ```python
@@ -116,7 +116,7 @@ def write_report(filename: str, content: str) -> None
 def calculate_total_value(products: List[Product]) -> float
 ```
 
-## 🔄 Data Flow
+##  Data Flow
 
 ### Typical Operation Flow
 
@@ -141,7 +141,7 @@ def calculate_total_value(products: List[Product]) -> float
 Error Occurs → Logging → Graceful Degradation → User Notification
 ```
 
-## 🧪 Testing Architecture
+##  Testing Architecture
 
 ### Test Organization
 
@@ -183,7 +183,7 @@ def test_load_inventory_file_error(mock_reader):
     # Test error handling
 ```
 
-## 📈 Performance Considerations
+##  Performance Considerations
 
 ### Memory Management
 - **Lazy Loading**: Data loaded on-demand
@@ -195,7 +195,7 @@ def test_load_inventory_file_error(mock_reader):
 - **Loose Coupling**: Components can be replaced independently
 - **Configuration-Driven**: Behavior controlled via settings
 
-## 🔐 Error Handling Strategy
+##  Error Handling Strategy
 
 ### Error Categories
 
@@ -221,7 +221,7 @@ except Exception as e:
     raise
 ```
 
-## 🚀 Extension Points
+##  Extension Points
 
 ### Adding New Product Types
 
@@ -257,7 +257,7 @@ The architecture supports easy feature addition:
 - **New Validations**: Add validators to models
 - **New Operations**: Extend `InventoryManager` class
 
-## 📊 Dependencies
+##  Dependencies
 
 ### Core Dependencies
 - **pydantic**: Data validation and serialization
@@ -271,7 +271,7 @@ The architecture supports easy feature addition:
 - **ruff**: Linting and code quality
 - **coverage**: Test coverage analysis
 
-## 🔄 Future Architecture Considerations
+##  Future Architecture Considerations
 
 ### Potential Enhancements
 

@@ -2,7 +2,7 @@
 
 This document chronicles the week-by-week development journey of the Inventory Manager project, showcasing the progression from basic Python concepts to a fully-featured application following industry best practices.
 
-## 🎯 Learning Objectives
+##  Learning Objectives
 
 - Master Git workflow and version control
 - Progress from procedural to object-oriented programming
@@ -12,15 +12,15 @@ This document chronicles the week-by-week development journey of the Inventory M
 
 ---
 
-## 📅 Week 1: Git Workflow & Python Fundamentals
+##  Week 1: Git Workflow & Python Fundamentals
 
 **Branch**: `feat/week-1` → `develop`
 
 ### Goals Achieved
-- ✅ Set up Git workflow with feature branches
-- ✅ Established proper project structure
-- ✅ Implemented basic Python scripts
-- ✅ Configured development tools
+-  Set up Git workflow with feature branches
+-  Established proper project structure
+-  Implemented basic Python scripts
+-  Configured development tools
 
 ### Key Files
 ```
@@ -49,15 +49,15 @@ git push -u origin feat/week-1
 
 ---
 
-## 📅 Week 2: Data Structures & File Operations
+##  Week 2: Data Structures & File Operations
 
 **Branch**: `feat/week-2` → `develop`
 
 ### Goals Achieved
-- ✅ Mastered Python data structures
-- ✅ Implemented file I/O operations
-- ✅ Built error handling mechanisms
-- ✅ Created data validation processes
+-  Mastered Python data structures
+-  Implemented file I/O operations
+-  Built error handling mechanisms
+-  Created data validation processes
 
 ### Project Structure
 ```
@@ -93,15 +93,15 @@ Week-2/
 
 ---
 
-## 📅 Week 3: Object-Oriented Design
+##  Week 3: Object-Oriented Design
 
 **Branch**: `feat/week-3` → `develop`
 
 ### Goals Achieved
-- ✅ Refactored to Object-Oriented Programming
-- ✅ Implemented inheritance hierarchy
-- ✅ Applied SOLID principles
-- ✅ Added data validation with Pydantic
+-  Refactored to Object-Oriented Programming
+-  Implemented inheritance hierarchy
+-  Applied SOLID principles
+-  Added data validation with Pydantic
 
 ### Architecture Overview
 ```
@@ -154,15 +154,15 @@ product = FoodItem(
 
 ---
 
-## 📅 Week 4: Test-Driven Development
+##  Week 4: Test-Driven Development
 
 **Branch**: `feat/week-4` → `develop`
 
 ### Goals Achieved
-- ✅ Implemented comprehensive test suite
-- ✅ Achieved almost 99% test coverage
-- ✅ Applied TDD methodology
-- ✅ Used advanced pytest features
+-  Implemented comprehensive test suite
+-  Achieved almost 99% test coverage
+-  Applied TDD methodology
+-  Used advanced pytest features
 
 ### Test Structure
 ```
@@ -180,7 +180,7 @@ tests/
 2. **Green**: Write minimal code to pass
 3. **Refactor**: Improve code while keeping tests green
 
-## 🏆 Overall Project Progression
+##  Overall Project Progression
 
 ### Technical Evolution
 
@@ -224,19 +224,19 @@ tests/
 
 ---
 
-📅 Week 5: API Development with FastAPI
+Week 5: API Development with FastAPI
 Branch: feature/week-5 → develop
 
 Goals Achieved
-✅ Implemented REST API using FastAPI
+ Implemented REST API using FastAPI
 
-✅ Added routing for inventory endpoints
+ Added routing for inventory endpoints
 
-✅ Integrated API with InventoryManager
+ Integrated API with InventoryManager
 
-✅ Created automated API tests using pytest and TestClient
+ Created automated API tests using pytest and TestClient
 
-✅ Updated requirements.txt for new dependencies
+ Updated requirements.txt for new dependencies
 
 ## Project Structure
 ```
@@ -267,7 +267,7 @@ def get_inventory():
 
 ```
 
-🏆 Overall Project Progression
+Overall Project Progression
 Week	Paradigm	Key Concepts	Code Quality
 1	Scripting	Git, Python basics	Basic structure
 2	Procedural	Data structures, file I/O	Error handling
@@ -276,7 +276,7 @@ Week	Paradigm	Key Concepts	Code Quality
 5	API-Driven	FastAPI, routing, integration	Deployable backend
 
 
-## 🚀 Next Steps & Potential Enhancements
+##  Next Steps & Potential Enhancements
 
 ### Immediate Improvements
 - [ ] Add database integration (SQLite/PostgreSQL)

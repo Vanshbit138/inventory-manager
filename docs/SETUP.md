@@ -2,7 +2,7 @@
 
 This guide provides detailed instructions for setting up the Inventory Manager project on your local machine.
 
-## 📋 Prerequisites
+##  Prerequisites
 
 - **Python 3.10 or higher** - [Download Python](https://python.org/downloads/)
 - **Git** - [Download Git](https://git-scm.com/downloads)
@@ -16,7 +16,7 @@ git --version      # Should show git version
 pip --version      # Should show pip version
 ```
 
-## 🚀 Installation
+##  Installation
 
 ### 1. Clone the Repository
 
@@ -57,7 +57,7 @@ pytest
 python main.py
 ```
 
-## 📁 Project Structure Overview
+##  Project Structure Overview
 
 ```
 inventory-manager/
@@ -127,7 +127,7 @@ inventory-manager/
     │   └── test_routes.py
   ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Sample Data Setup
 
@@ -141,7 +141,7 @@ product_id,product_name,type,price,quantity,expiry_date,warranty_period,author,p
 ```
 
 
-## 🧪 Development Setup
+##  Development Setup
 
 ### Code Quality Tools
 
@@ -182,7 +182,7 @@ pytest tests/test_core.py
 pytest tests/test_core.py::test_get_inventory_value
 ```
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -207,7 +207,7 @@ If you encounter issues:
 4. Check the error logs in `error.log`
 5. Run tests to identify specific issues: `pytest -v`
 
-## 🔄 Updates
+##  Updates
 
 To update the project dependencies:
 
@@ -221,7 +221,7 @@ To update the project code:
 git pull origin main
 ```
 
-## 📚 Next Steps
+##  Next Steps
 
 After successful setup:
 

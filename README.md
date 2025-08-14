@@ -2,7 +2,7 @@
 
 A comprehensive **Python-based Inventory Management System** built using Object-Oriented Programming principles, following Test-Driven Development practices. This project demonstrates a complete software development lifecycle from basic Python scripting to a production-ready application.
 
-## 🚀 Quick Start
+##  Quick Start
 
 ```bash
 # Clone the repository
@@ -20,7 +20,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-## 📋 Features
+##  Features
 
 - **Multi-product type support**: Food items, Electronics, Books with specific attributes
 - **Data validation**: Using Pydantic v2 for robust data handling
@@ -30,7 +30,7 @@ python main.py
 - **Clean architecture**: Following SOLID principles
 
 
-## 📊 Project Structure
+##  Project Structure
 
 ```
 inventory-manager/
@@ -48,7 +48,7 @@ inventory-manager/
 ├── setup.md                    # Local setup guide and development environment instructions
 ```
 
-## 🧪 Testing
+##  Testing
 
 This project follows **Test-Driven Development (TDD)** practices:
 
@@ -65,7 +65,7 @@ pytest tests/test_core.py -v
 
 **Current test coverage: 100%**
 
-## 📚 Documentation
+##  Documentation
 
 Comprehensive documentation is available in the `docs/` folder:
 
@@ -74,7 +74,7 @@ Comprehensive documentation is available in the `docs/` folder:
 - **[Architecture Guide](docs/ARCHITECTURE.md)** - Technical design and patterns
 - **[Testing Strategy](docs/TESTING.md)** - TDD approach and test coverage
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 - **Python 3.10+**
 - **Pydantic v2** - Data validation and serialization
@@ -82,7 +82,7 @@ Comprehensive documentation is available in the `docs/` folder:
 - **Black & Ruff** - Code formatting and linting
 - **CSV** - Data storage and processing
 
-## 📈 Learning Outcomes
+##  Learning Outcomes
 
 This project demonstrates proficiency in:
 
@@ -93,7 +93,7 @@ This project demonstrates proficiency in:
 - **Code quality** tools and practices
 - **Documentation** and project organization
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -102,7 +102,7 @@ This project demonstrates proficiency in:
 5. Open a Pull Request
 
 
-## 📞 Contact
+##  Contact
 
 **Vansh Jaiswal** - vanshjaiswal@bitcot.com
 

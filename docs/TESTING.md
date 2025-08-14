@@ -31,17 +31,6 @@ pytest --cov=inventory_manager --cov-report=html
 
 ## 🏗️ Test Structure
 
-### Test Organization
-
-```
-tests/
-├── conftest.py                     # Shared fixtures and configuration
-├── test_core.py                   # InventoryManager core logic tests
-├── test_models.py                 # Pydantic model validation tests
-├── test_models_using_fixtures.py  # Model tests with fixture usage
-├── test_utils.py                  # Utility function tests
-└── requirements.txt               # Test-specific dependencies
-```
 
 ### Test Categories
 

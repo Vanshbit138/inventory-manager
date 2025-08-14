@@ -40,22 +40,10 @@ Each class and module has a single, well-defined responsibility:
 #### Open/Closed Principle (OCP)
 The system is designed to be open for extension but closed for modification:
 
-```python
-# Easy to add new product types without modifying existing code
-class Product(BaseModel):  # Base class remains unchanged
-    # Common attributes
-
-class NewProductType(Product):  # Extension via inheritance
-    # Type-specific attributes
-```
 
 #### Liskov Substitution Principle (LSP)
 All product subclasses can be used interchangeably:
 
-```python
-def process_product(product: Product):  # Works with any Product subclass
-    return product.calculate_value()
-```
 
 #### Interface Segregation Principle (ISP)
 Interfaces are focused and specific to client needs.
@@ -83,24 +71,6 @@ Product (BaseModel)
 
 ### Pydantic Integration
 
-```python
-from pydantic import BaseModel, validator
-from typing import Optional
-
-class Product(BaseModel):
-    product_id: int
-    product_name: str
-    type: str
-    price: float
-    quantity: int
-    
-    @validator('price')
-    def price_must_be_positive(cls, v):
-        if v <= 0:
-            raise ValueError('Price must be positive')
-        return v
-```
-
 **Benefits:**
 - **Type Safety**: Automatic type checking and conversion
 - **Data Validation**: Built-in validation rules
@@ -117,36 +87,6 @@ class Product(BaseModel):
 - Generate reports and logs
 - Manage product operations
 
-**Key Methods:**
-
-```python
-class InventoryManager:
-    def __init__(self, csv_file: str, low_stock_threshold: int = 10)
-    
-    def load_inventory(self) -> List[Product]
-    def validate_products(self, products: List[dict]) -> List[Product]
-    def generate_low_stock_report(self, products: List[Product]) -> None
-    def run(self) -> None
-```
-
-### Product Factory Pattern
-
-The system uses a factory pattern for creating product instances:
-
-```python
-def create_product(product_data: dict) -> Product:
-    """Factory method to create appropriate product type"""
-    product_type = product_data.get('type', '').lower()
-    
-    if product_type == 'food':
-        return FoodItem(**product_data)
-    elif product_type == 'electronic':
-        return ElectronicItem(**product_data)
-    elif product_type == 'book':
-        return BookItem(**product_data)
-    else:
-        return Product(**product_data)
-```
 
 ## 📁 File Structure & Responsibilities
 

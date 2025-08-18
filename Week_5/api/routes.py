@@ -1,11 +1,12 @@
-from flask import current_app, jsonify, request
+from flask import current_app, jsonify, request, Response
 from . import products_bp
 from inventory_manager.models import Product
 from pydantic import ValidationError
+from typing import Tuple, Any
 
 
 @products_bp.route("/", methods=["GET"])
-def get_all_products():
+def get_all_products() -> Response:
     """
     Get a list of all products in the inventory.
     """
@@ -14,7 +15,7 @@ def get_all_products():
 
 
 @products_bp.route("/<int:product_id>", methods=["GET"])
-def get_product(product_id: int):
+def get_product(product_id: int) -> Tuple[Response, int] | Response:
     """
     Retrieve a single product by its product_id.
     """
@@ -26,13 +27,13 @@ def get_product(product_id: int):
 
 
 @products_bp.route("/", methods=["POST"])
-def add_product():
+def add_product() -> Tuple[Response, int]:
     """
     Add a new product to the inventory.
     """
     inventory = current_app.config["inventory"]
     try:
-        data = request.get_json()
+        data: dict[str, Any] = request.get_json()
         new_product = Product(**data)
         inventory.products.append(new_product)
         return jsonify({"message": "Product added"}), 201
@@ -41,7 +42,7 @@ def add_product():
 
 
 @products_bp.route("/<int:product_id>", methods=["PUT"])
-def update_product(product_id: int):
+def update_product(product_id: int) -> Tuple[Response, int]:
     """
     Update an existing product's details with validation.
     """
@@ -51,10 +52,10 @@ def update_product(product_id: int):
         return jsonify({"error": "Product not found"}), 404
 
     try:
-        data = request.get_json()
+        data: dict[str, Any] = request.get_json()
 
         # Merge existing product data with updates
-        updated_data = product.model_dump()
+        updated_data: dict[str, Any] = product.model_dump()
         updated_data.update(data)
 
         # Validate with Pydantic
@@ -72,7 +73,7 @@ def update_product(product_id: int):
 
 
 @products_bp.route("/<int:product_id>", methods=["DELETE"])
-def delete_product(product_id: int):
+def delete_product(product_id: int) -> Tuple[Response, int]:
     """
     Delete a product from the inventory.
     """

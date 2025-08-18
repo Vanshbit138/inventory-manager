@@ -2,7 +2,7 @@
 
 This document provides a detailed technical overview of the Inventory Manager's architecture, design patterns, and implementation decisions.
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ### High-Level Overview
 
@@ -26,7 +26,7 @@ inventory_manager/
 └── utils.py            # Utility functions
 ```
 
-## 🎯 Design Principles
+##  Design Principles
 
 ### SOLID Principles Implementation
 
@@ -40,22 +40,10 @@ Each class and module has a single, well-defined responsibility:
 #### Open/Closed Principle (OCP)
 The system is designed to be open for extension but closed for modification:
 
-```python
-# Easy to add new product types without modifying existing code
-class Product(BaseModel):  # Base class remains unchanged
-    # Common attributes
-
-class NewProductType(Product):  # Extension via inheritance
-    # Type-specific attributes
-```
 
 #### Liskov Substitution Principle (LSP)
 All product subclasses can be used interchangeably:
 
-```python
-def process_product(product: Product):  # Works with any Product subclass
-    return product.calculate_value()
-```
 
 #### Interface Segregation Principle (ISP)
 Interfaces are focused and specific to client needs.
@@ -63,7 +51,7 @@ Interfaces are focused and specific to client needs.
 #### Dependency Inversion Principle (DIP)
 High-level modules don't depend on low-level implementation details.
 
-## 📊 Data Models
+##  Data Models
 
 ### Class Hierarchy
 
@@ -83,31 +71,13 @@ Product (BaseModel)
 
 ### Pydantic Integration
 
-```python
-from pydantic import BaseModel, validator
-from typing import Optional
-
-class Product(BaseModel):
-    product_id: int
-    product_name: str
-    type: str
-    price: float
-    quantity: int
-    
-    @validator('price')
-    def price_must_be_positive(cls, v):
-        if v <= 0:
-            raise ValueError('Price must be positive')
-        return v
-```
-
 **Benefits:**
 - **Type Safety**: Automatic type checking and conversion
 - **Data Validation**: Built-in validation rules
 - **Serialization**: Easy JSON/dict conversion
 - **Documentation**: Self-documenting models
 
-## 🔧 Core Components
+##  Core Components
 
 ### InventoryManager Class
 
@@ -117,38 +87,8 @@ class Product(BaseModel):
 - Generate reports and logs
 - Manage product operations
 
-**Key Methods:**
 
-```python
-class InventoryManager:
-    def __init__(self, csv_file: str, low_stock_threshold: int = 10)
-    
-    def load_inventory(self) -> List[Product]
-    def validate_products(self, products: List[dict]) -> List[Product]
-    def generate_low_stock_report(self, products: List[Product]) -> None
-    def run(self) -> None
-```
-
-### Product Factory Pattern
-
-The system uses a factory pattern for creating product instances:
-
-```python
-def create_product(product_data: dict) -> Product:
-    """Factory method to create appropriate product type"""
-    product_type = product_data.get('type', '').lower()
-    
-    if product_type == 'food':
-        return FoodItem(**product_data)
-    elif product_type == 'electronic':
-        return ElectronicItem(**product_data)
-    elif product_type == 'book':
-        return BookItem(**product_data)
-    else:
-        return Product(**product_data)
-```
-
-## 📁 File Structure & Responsibilities
+##  File Structure & Responsibilities
 
 ### core.py
 ```python
@@ -176,7 +116,7 @@ def write_report(filename: str, content: str) -> None
 def calculate_total_value(products: List[Product]) -> float
 ```
 
-## 🔄 Data Flow
+##  Data Flow
 
 ### Typical Operation Flow
 
@@ -201,7 +141,7 @@ def calculate_total_value(products: List[Product]) -> float
 Error Occurs → Logging → Graceful Degradation → User Notification
 ```
 
-## 🧪 Testing Architecture
+##  Testing Architecture
 
 ### Test Organization
 
@@ -243,7 +183,7 @@ def test_load_inventory_file_error(mock_reader):
     # Test error handling
 ```
 
-## 📈 Performance Considerations
+##  Performance Considerations
 
 ### Memory Management
 - **Lazy Loading**: Data loaded on-demand
@@ -255,7 +195,7 @@ def test_load_inventory_file_error(mock_reader):
 - **Loose Coupling**: Components can be replaced independently
 - **Configuration-Driven**: Behavior controlled via settings
 
-## 🔐 Error Handling Strategy
+##  Error Handling Strategy
 
 ### Error Categories
 
@@ -281,7 +221,7 @@ except Exception as e:
     raise
 ```
 
-## 🚀 Extension Points
+##  Extension Points
 
 ### Adding New Product Types
 
@@ -317,7 +257,7 @@ The architecture supports easy feature addition:
 - **New Validations**: Add validators to models
 - **New Operations**: Extend `InventoryManager` class
 
-## 📊 Dependencies
+##  Dependencies
 
 ### Core Dependencies
 - **pydantic**: Data validation and serialization
@@ -331,7 +271,7 @@ The architecture supports easy feature addition:
 - **ruff**: Linting and code quality
 - **coverage**: Test coverage analysis
 
-## 🔄 Future Architecture Considerations
+##  Future Architecture Considerations
 
 ### Potential Enhancements
 

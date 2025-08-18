@@ -2,7 +2,7 @@
 
 This document chronicles the week-by-week development journey of the Inventory Manager project, showcasing the progression from basic Python concepts to a fully-featured application following industry best practices.
 
-## 🎯 Learning Objectives
+##  Learning Objectives
 
 - Master Git workflow and version control
 - Progress from procedural to object-oriented programming
@@ -12,15 +12,15 @@ This document chronicles the week-by-week development journey of the Inventory M
 
 ---
 
-## 📅 Week 1: Git Workflow & Python Fundamentals
+##  Week 1: Git Workflow & Python Fundamentals
 
 **Branch**: `feat/week-1` → `develop`
 
 ### Goals Achieved
-- ✅ Set up Git workflow with feature branches
-- ✅ Established proper project structure
-- ✅ Implemented basic Python scripts
-- ✅ Configured development tools
+-  Set up Git workflow with feature branches
+-  Established proper project structure
+-  Implemented basic Python scripts
+-  Configured development tools
 
 ### Key Files
 ```
@@ -49,15 +49,15 @@ git push -u origin feat/week-1
 
 ---
 
-## 📅 Week 2: Data Structures & File Operations
+##  Week 2: Data Structures & File Operations
 
 **Branch**: `feat/week-2` → `develop`
 
 ### Goals Achieved
-- ✅ Mastered Python data structures
-- ✅ Implemented file I/O operations
-- ✅ Built error handling mechanisms
-- ✅ Created data validation processes
+-  Mastered Python data structures
+-  Implemented file I/O operations
+-  Built error handling mechanisms
+-  Created data validation processes
 
 ### Project Structure
 ```
@@ -93,15 +93,15 @@ Week-2/
 
 ---
 
-## 📅 Week 3: Object-Oriented Design
+##  Week 3: Object-Oriented Design
 
 **Branch**: `feat/week-3` → `develop`
 
 ### Goals Achieved
-- ✅ Refactored to Object-Oriented Programming
-- ✅ Implemented inheritance hierarchy
-- ✅ Applied SOLID principles
-- ✅ Added data validation with Pydantic
+-  Refactored to Object-Oriented Programming
+-  Implemented inheritance hierarchy
+-  Applied SOLID principles
+-  Added data validation with Pydantic
 
 ### Architecture Overview
 ```
@@ -154,15 +154,15 @@ product = FoodItem(
 
 ---
 
-## 📅 Week 4: Test-Driven Development
+##  Week 4: Test-Driven Development
 
 **Branch**: `feat/week-4` → `develop`
 
 ### Goals Achieved
-- ✅ Implemented comprehensive test suite
-- ✅ Achieved almost 99% test coverage
-- ✅ Applied TDD methodology
-- ✅ Used advanced pytest features
+-  Implemented comprehensive test suite
+-  Achieved almost 99% test coverage
+-  Applied TDD methodology
+-  Used advanced pytest features
 
 ### Test Structure
 ```
@@ -180,46 +180,7 @@ tests/
 2. **Green**: Write minimal code to pass
 3. **Refactor**: Improve code while keeping tests green
 
-### Advanced Testing Techniques
-
-**Fixtures for Setup/Teardown**
-```python
-@pytest.fixture
-def sample_inventory_data():
-    return [
-        {"product_id": 1, "name": "Milk", "quantity": 20},
-        {"product_id": 2, "name": "Laptop", "quantity": 5}
-    ]
-```
-
-**Parametrized Tests**
-```python
-@pytest.mark.parametrize("quantity,expected", [
-    (5, True),   # Low stock
-    (15, False), # Normal stock
-])
-def test_is_low_stock(quantity, expected):
-    assert is_low_stock(quantity) == expected
-```
-
-**Mocking External Dependencies**
-```python
-@patch('inventory_manager.core.logging')
-def test_logging_behavior(mock_logging):
-    # Test logging without actual file I/O
-    process_inventory()
-    mock_logging.error.assert_called_once()
-```
-
-### Testing Achievements
-- **100% Coverage**: All code paths tested
-- **Mock Usage**: External dependencies isolated
-- **Parametrization**: Efficient test case coverage
-- **Fixture Usage**: Clean, reusable test setup
-
----
-
-## 🏆 Overall Project Progression
+##  Overall Project Progression
 
 ### Technical Evolution
 
@@ -263,11 +224,62 @@ def test_logging_behavior(mock_logging):
 
 ---
 
-## 🚀 Next Steps & Potential Enhancements
+Week 5: API Development with FastAPI
+Branch: feature/week-5 → develop
+
+Goals Achieved
+ Implemented REST API using FastAPI
+
+ Added routing for inventory endpoints
+
+ Integrated API with InventoryManager
+
+ Created automated API tests using pytest and TestClient
+
+ Updated requirements.txt for new dependencies
+
+## Project Structure
+```
+Week_5/
+├── api/
+│   ├── __init__.py
+│   └── routes.py          # API routes for inventory operations
+├── app.py                  # FastAPI application entry point
+├── requirements.txt        # Includes FastAPI, Uvicorn
+└── tests/
+    └── test_routes.py      # API endpoint tests
+```
+## Key Features
+
+FastAPI Setup: app.py initializes application and includes routers
+
+Routing: CRUD endpoints for inventory management
+
+Integration: API layer communicates with core business logic
+
+Testing: Endpoint validation with pytest and fastapi.testclient
+
+Example Endpoint
+```
+@app.get("/inventory")
+def get_inventory():
+    return inventory_manager.get_all_products()
+
+```
+
+Overall Project Progression
+Week	Paradigm	Key Concepts	Code Quality
+1	Scripting	Git, Python basics	Basic structure
+2	Procedural	Data structures, file I/O	Error handling
+3	Object-Oriented	Classes, inheritance, SOLID	Clean architecture
+4	Test-Driven	Testing, mocking, coverage	Production-ready
+5	API-Driven	FastAPI, routing, integration	Deployable backend
+
+
+##  Next Steps & Potential Enhancements
 
 ### Immediate Improvements
 - [ ] Add database integration (SQLite/PostgreSQL)
-- [ ] Implement REST API with FastAPI
 - [ ] Add user authentication and authorization
 - [ ] Create web-based UI
 

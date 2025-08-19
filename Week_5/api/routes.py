@@ -29,13 +29,17 @@ def get_product(product_id: int) -> Tuple[Response, int] | Response:
 @products_bp.route("/", methods=["POST"])
 def add_product() -> Tuple[Response, int]:
     """
-    Add a new product to the inventory.
+    Add a new product to the inventory and save to CSV.
     """
     inventory = current_app.config["inventory"]
     try:
         data: dict[str, Any] = request.get_json()
         new_product = Product(**data)
         inventory.products.append(new_product)
+
+        # Save changes to CSV
+        inventory.save_to_csv()
+
         return jsonify({"message": "Product added"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -44,7 +48,7 @@ def add_product() -> Tuple[Response, int]:
 @products_bp.route("/<int:product_id>", methods=["PUT"])
 def update_product(product_id: int) -> Tuple[Response, int]:
     """
-    Update an existing product's details with validation.
+    Update an existing product's details, validate, and save to CSV.
     """
     inventory = current_app.config["inventory"]
     product = next((p for p in inventory.products if p.product_id == product_id), None)
@@ -64,6 +68,9 @@ def update_product(product_id: int) -> Tuple[Response, int]:
         # Update the product
         product.__dict__.update(validated_product.__dict__)
 
+        # Save changes to CSV
+        inventory.save_to_csv()
+
         return jsonify({"message": "Product updated"}), 200
 
     except ValidationError as e:
@@ -75,7 +82,7 @@ def update_product(product_id: int) -> Tuple[Response, int]:
 @products_bp.route("/<int:product_id>", methods=["DELETE"])
 def delete_product(product_id: int) -> Tuple[Response, int]:
     """
-    Delete a product from the inventory.
+    Delete a product from the inventory and save to CSV.
     """
     inventory = current_app.config["inventory"]
     product = next((p for p in inventory.products if p.product_id == product_id), None)
@@ -83,4 +90,8 @@ def delete_product(product_id: int) -> Tuple[Response, int]:
         return jsonify({"error": "Product not found"}), 404
 
     inventory.products.remove(product)
+
+    # Save changes to CSV
+    inventory.save_to_csv()
+
     return jsonify({"message": "Product deleted"}), 200

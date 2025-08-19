@@ -13,7 +13,7 @@ class Product(db.Model):
 
     __tablename__ = "products"
 
-    id: int = db.Column(db.Integer, primary_key=True)
+    product_id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name: str = db.Column(db.String(100), nullable=False)
     quantity: int = db.Column(db.Integer, nullable=False, default=0)
     price: float = db.Column(db.Float, nullable=False)
@@ -31,7 +31,7 @@ class Product(db.Model):
     def to_dict(self) -> Dict[str, str | int | float]:
         """Convert Product instance to dictionary for JSON responses."""
         return {
-            "product_id": self.id,
+            "product_id": self.product_id,
             "name": self.name,
             "quantity": self.quantity,
             "price": self.price,
@@ -39,7 +39,7 @@ class Product(db.Model):
         }
 
     def __repr__(self) -> str:
-        return f"<Product id={self.id} name={self.name} type={self.type}>"
+        return f"<Product id={self.product_id} name={self.name} type={self.type}>"
 
 
 class FoodProduct(Product):

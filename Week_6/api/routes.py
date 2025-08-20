@@ -2,17 +2,32 @@ from flask import Blueprint, request, jsonify, current_app
 from sqlalchemy.exc import SQLAlchemyError
 from pydantic import ValidationError
 from .models import db, Product, FoodProduct, ElectronicProduct, BookProduct
-from .schemas import ProductCreate, ProductUpdate, ProductResponse
+from .schemas import (
+    FoodProductCreate,
+    ElectronicProductCreate,
+    BookProductCreate,
+    FoodProductUpdate,
+    ElectronicProductUpdate,
+    BookProductUpdate,
+    ProductResponse,
+)
 
 products_bp = Blueprint("products", __name__, url_prefix="/products")
 
 
+# ----------------------
+# GET all products
+# ----------------------
 @products_bp.route("/", methods=["GET"])
 def get_all_products() -> tuple:
-    """Retrieve all products."""
+    """
+    Retrieve all products from the database.
+
+    Returns:
+        tuple: JSON list of products and HTTP status code.
+    """
     try:
         products = Product.query.all()
-        # Use Pydantic response model for consistency
         result = [ProductResponse.model_validate(p).model_dump() for p in products]
         return jsonify(result), 200
     except SQLAlchemyError as e:
@@ -20,9 +35,20 @@ def get_all_products() -> tuple:
         return jsonify({"error": "Failed to fetch products"}), 500
 
 
+# ----------------------
+# GET single product
+# ----------------------
 @products_bp.route("/<int:product_id>", methods=["GET"])
 def get_product(product_id: int) -> tuple:
-    """Retrieve a single product by its ID."""
+    """
+    Retrieve a single product by its ID.
+
+    Args:
+        product_id (int): ID of the product to retrieve.
+
+    Returns:
+        tuple: JSON representation of product or error message.
+    """
     product = Product.query.get(product_id)
     if not product:
         return jsonify({"error": "Product not found"}), 404
@@ -30,44 +56,41 @@ def get_product(product_id: int) -> tuple:
     return jsonify(ProductResponse.model_validate(product).model_dump()), 200
 
 
+# ----------------------
+# POST create product
+# ----------------------
 @products_bp.route("/", methods=["POST"])
 def create_product() -> tuple:
-    """Create a new product."""
+    """
+    Create a new product based on its type (food, electronic, or book).
+
+    Returns:
+        tuple: JSON representation of created product or error message.
+    """
     data = request.get_json()
-    try:
-        product_data = ProductCreate(**data)
-    except ValidationError as e:
-        return jsonify(e.errors()), 400
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+
+    type_ = data.get("type")
 
     try:
-        if product_data.type == "food":
-            product = FoodProduct(
-                **product_data.model_dump(
-                    exclude={"type", "warranty_period"}  # food doesn't use warranty
-                )
-            )
-        elif product_data.type == "electronic":
-            product = ElectronicProduct(
-                **product_data.model_dump(
-                    exclude={"type", "expiry_date"}  # electronics don't use expiry_date
-                )
-            )
-        elif product_data.type == "book":
-            product = BookProduct(
-                **product_data.model_dump(
-                    exclude={
-                        "type",
-                        "expiry_date",
-                        "warranty_period",
-                    }  # books use neither
-                )
-            )
+        if type_ == "food":
+            product_data = FoodProductCreate(**data)
+            product = FoodProduct(**product_data.model_dump(exclude={"type"}))
+        elif type_ == "electronic":
+            product_data = ElectronicProductCreate(**data)
+            product = ElectronicProduct(**product_data.model_dump(exclude={"type"}))
+        elif type_ == "book":
+            product_data = BookProductCreate(**data)
+            product = BookProduct(**product_data.model_dump(exclude={"type"}))
         else:
             return jsonify({"error": "Invalid product type"}), 400
+    except ValidationError as e:
+        return jsonify({"validation_error": e.errors()}), 400
 
+    try:
         db.session.add(product)
         db.session.commit()
-
         return jsonify(ProductResponse.model_validate(product).model_dump()), 201
     except SQLAlchemyError as e:
         db.session.rollback()
@@ -75,24 +98,44 @@ def create_product() -> tuple:
         return jsonify({"error": "Failed to create product"}), 500
 
 
+# ----------------------
+# PUT update product
+# ----------------------
 @products_bp.route("/<int:product_id>", methods=["PUT"])
 def update_product(product_id: int) -> tuple:
-    """Update an existing product."""
+    """
+    Update an existing product by its ID.
+
+    Args:
+        product_id (int): ID of the product to update.
+
+    Returns:
+        tuple: JSON representation of updated product or error message.
+    """
     product = Product.query.get(product_id)
     if not product:
         return jsonify({"error": "Product not found"}), 404
 
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+
+    type_ = product.type
+
     try:
-        # Validate partial update
-        update_data = ProductUpdate(**data)
+        if type_ == "food":
+            update_data = FoodProductUpdate(**data)
+        elif type_ == "electronic":
+            update_data = ElectronicProductUpdate(**data)
+        elif type_ == "book":
+            update_data = BookProductUpdate(**data)
+        else:
+            return jsonify({"error": "Invalid product type"}), 400
     except ValidationError as e:
-        return jsonify(e.errors()), 400
+        return jsonify({"validation_error": e.errors()}), 400
 
     try:
         for key, value in update_data.model_dump(exclude_unset=True).items():
-            if key == "type":  # Don't allow type change
-                continue
             setattr(product, key, value)
 
         db.session.commit()
@@ -103,9 +146,20 @@ def update_product(product_id: int) -> tuple:
         return jsonify({"error": "Failed to update product"}), 500
 
 
+# ----------------------
+# DELETE product
+# ----------------------
 @products_bp.route("/<int:product_id>", methods=["DELETE"])
 def delete_product(product_id: int) -> tuple:
-    """Delete a product by its ID."""
+    """
+    Delete a product by its ID.
+
+    Args:
+        product_id (int): ID of the product to delete.
+
+    Returns:
+        tuple: Success message or error message.
+    """
     product = Product.query.get(product_id)
     if not product:
         return jsonify({"error": "Product not found"}), 404

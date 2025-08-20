@@ -3,29 +3,72 @@ from typing import Optional, Literal
 from datetime import date
 
 
-class ProductCreate(BaseModel):
-    """Schema for creating a product."""
+# ----------------------
+# Request Schemas
+# ----------------------
+class BaseProductCreate(BaseModel):
+    """Base schema for creating a product."""
 
     name: str
-    price: float = Field(..., gt=0, description="Product price, must be greater than 0")
+    price: float = Field(..., gt=0, description="Product price, must be > 0")
     quantity: int = Field(..., ge=0, description="Quantity in stock, must be >= 0")
     type: Literal["food", "electronic", "book"]
-    expiry_date: Optional[date] = None
-    warranty_period: Optional[int] = None
 
 
-class ProductUpdate(BaseModel):
-    """Schema for updating a product (partial updates allowed)."""
+class FoodProductCreate(BaseProductCreate):
+    """Schema for creating a Food product."""
+
+    expiry_date: date
+
+
+class ElectronicProductCreate(BaseProductCreate):
+    """Schema for creating an Electronic product."""
+
+    warranty_period: int
+
+
+class BookProductCreate(BaseProductCreate):
+    """Schema for creating a Book product."""
+
+    author: str
+    pages: int
+
+
+# ----------------------
+# Update Schemas
+# ----------------------
+class BaseProductUpdate(BaseModel):
+    """Base schema for updating a product (partial updates allowed)."""
 
     name: Optional[str] = None
-    price: Optional[float] = None
-    quantity: Optional[int] = None
+    price: Optional[float] = Field(None, gt=0)
+    quantity: Optional[int] = Field(None, ge=0)
+
+
+class FoodProductUpdate(BaseProductUpdate):
+    """Schema for updating a Food product."""
+
     expiry_date: Optional[date] = None
+
+
+class ElectronicProductUpdate(BaseProductUpdate):
+    """Schema for updating an Electronic product."""
+
     warranty_period: Optional[int] = None
 
 
+class BookProductUpdate(BaseProductUpdate):
+    """Schema for updating a Book product."""
+
+    author: Optional[str] = None
+    pages: Optional[int] = None
+
+
+# ----------------------
+# Response Schema
+# ----------------------
 class ProductResponse(BaseModel):
-    """Schema for product response."""
+    """Schema for returning product data in API responses."""
 
     product_id: int
     name: str
@@ -34,5 +77,7 @@ class ProductResponse(BaseModel):
     type: str
     expiry_date: Optional[date] = None
     warranty_period: Optional[int] = None
+    author: Optional[str] = None
+    pages: Optional[int] = None
 
-    model_config = ConfigDict(from_attributes=True)  # replaces orm_mode = True
+    model_config = ConfigDict(from_attributes=True)  # ORM mode

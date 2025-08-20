@@ -9,6 +9,7 @@ from datetime import date
 class BaseProductCreate(BaseModel):
     """Base schema for creating a product."""
 
+    product_id: int = Field(..., gt=0, description="Product id, must be > 0")
     name: str
     price: float = Field(..., gt=0, description="Product price, must be > 0")
     quantity: int = Field(..., ge=0, description="Quantity in stock, must be >= 0")

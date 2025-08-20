@@ -1,0 +1,6 @@
+product_id,product_name,price,quantity,type,expiry_date,warranty_period,author,pages
+101,Apples,1.5,5,,2025-09-01,,,
+104,Grapes,2.0,15,,2025-08-30,,,
+106,Laptop,50000.0,4,,,24,,
+107,Python 101,500.0,10,,,,Mike,300
+108,Chair,1200.0,15,,,,,

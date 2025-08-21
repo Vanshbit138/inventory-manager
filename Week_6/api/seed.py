@@ -16,30 +16,30 @@ def create_product_from_row(row: dict) -> Optional[Product]:
     """
     Factory function to create the correct Product subclass
     based on the 'type' field in the CSV row.
-
-    Args:
-        row (dict): A row from the CSV file.
-
-    Returns:
-        Product | None: A Product instance or None if invalid.
+    Skips invalid rows (missing fields, invalid values).
     """
     try:
         product_type = row.get("type", "").strip().lower()
         name = row.get("product_name") or row.get("name")
 
         if not name or not row.get("price") or not row.get("quantity"):
-            # Skip incomplete rows
             return None
 
         price = float(row["price"])
         quantity = int(row["quantity"])
 
+        # Skip invalid values
+        if price <= 0 or quantity < 0:
+            return None
+
         if product_type == "food":
-            expiry_date = (
-                datetime.strptime(row["expiry_date"], "%Y-%m-%d").date()
-                if row.get("expiry_date")
-                else None
-            )
+            if not row.get("expiry_date"):
+                return None
+            expiry_date = datetime.strptime(row["expiry_date"], "%Y-%m-%d").date()
+            # Skip expired food
+            if expiry_date < datetime.today().date():
+                return None
+
             return FoodProduct(
                 name=name,
                 price=price,
@@ -48,33 +48,29 @@ def create_product_from_row(row: dict) -> Optional[Product]:
             )
 
         elif product_type == "electronic":
+            if not row.get("warranty_period"):
+                return None
             return ElectronicProduct(
                 name=name,
                 price=price,
                 quantity=quantity,
-                warranty_period=(
-                    int(row["warranty_period"]) if row.get("warranty_period") else None
-                ),
+                warranty_period=int(row["warranty_period"]),
             )
 
         elif product_type == "book":
+            if not row.get("author") or not row.get("pages"):
+                return None
             return BookProduct(
                 name=name,
                 price=price,
                 quantity=quantity,
-                author=row.get("author"),
-                pages=int(row["pages"]) if row.get("pages") else None,
+                author=row["author"],
+                pages=int(row["pages"]),
             )
 
         else:
-            # Warn for unknown product types
-            print(f" Unknown product type '{product_type}' in row: {row}")
-            return Product(
-                name=name,
-                price=price,
-                quantity=quantity,
-                type="product",
-            )
+            # Unknown product type → skip
+            return None
 
     except (ValueError, KeyError) as e:
         print(f" Skipping row due to error: {e} → {row}")

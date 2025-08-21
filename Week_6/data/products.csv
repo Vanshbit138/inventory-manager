@@ -1,6 +1,13 @@
 product_id,product_name,price,quantity,type,expiry_date,warranty_period,author,pages
-101,Apples,1.5,5,,2025-09-01,,,
-104,Grapes,2.0,15,,2025-08-30,,,
-106,Laptop,50000.0,4,,,24,,
-107,Python 101,500.0,10,,,,Mike,300
-108,Chair,1200.0,15,,,,,
+101,Apples,1.5,5,food,2025-09-01,,,               #  Valid food product
+102,Banana,0.0,10,food,2025-09-10,,,              #  Invalid (price = 0)
+103,Orange,2.0,-5,food,2025-09-05,,,              #  Invalid (negative quantity)
+104,Grapes,2.0,15,food,2025-08-30,,,              #  Valid food product
+105,Milk,3.5,20,food,2025-07-01,,,                #  Invalid (expiry already passed)
+106,Laptop,50000.0,4,electronic,,24,,             #  Valid electronic product
+107,Phone,30000.0,3,electronic,,,,                #  Invalid (missing warranty_period)
+108,Python 101,500.0,10,book,,,,Mike,300          #  Valid book
+109,Unknown Book,400.0,5,book,,,,,                #  Invalid (missing author & pages)
+110,Chair,1200.0,15,product,,,,,                  #  Generic product
+111,,150.0,10,product,,,,,                        #  Invalid (missing name)
+112,Table,2000.0,5,invalid_type,,,,               #  Invalid type

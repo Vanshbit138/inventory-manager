@@ -13,9 +13,11 @@ from inventory_manager.utils import log_error, write_low_stock_report
 class Inventory:
     def __init__(self) -> None:
         self.products: List[Product] = []
+        self.file_path: Optional[str] = None  # store CSV path
 
     def load_from_csv(self, file_path: str) -> None:
         """Load inventory data and classify product types."""
+        self.file_path = file_path  # remember path for saving
         try:
             with open(file_path, newline="", encoding="utf-8") as csvfile:
                 reader = csv.DictReader(csvfile)
@@ -30,6 +32,37 @@ class Inventory:
             log_error(f"[File Error] File not found: {file_path}")
         except Exception as e:
             log_error(f"[Unexpected Error] Failed to load CSV: {e}")
+
+    def save_to_csv(self) -> None:
+        """Save current products back to the CSV file."""
+        if not self.file_path:
+            log_error("[Save Error] No file path set for saving CSV.")
+            return
+
+        try:
+            with open(
+                self.file_path, mode="w", newline="", encoding="utf-8"
+            ) as csvfile:
+                fieldnames = [
+                    "product_id",
+                    "product_name",
+                    "price",
+                    "quantity",
+                    "type",
+                    "expiry_date",
+                    "warranty_period",
+                    "author",
+                    "pages",
+                ]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+
+                for product in self.products:
+                    row = product.model_dump()
+                    writer.writerow(row)
+
+        except Exception as e:
+            log_error(f"[Save Error] Failed to save CSV: {e}")
 
     def _parse_row(self, row: dict) -> Optional[Product]:
         """Detect type and build appropriate Product subclass."""

@@ -224,19 +224,15 @@ tests/
 
 ---
 
-Week 5: API Development with FastAPI
-Branch: feature/week-5 → develop
+### Week 5: API Development with FastAPI
+**Branch**: `feature/week-5 → develop`
 
-Goals Achieved
- Implemented REST API using FastAPI
-
- Added routing for inventory endpoints
-
- Integrated API with InventoryManager
-
- Created automated API tests using pytest and TestClient
-
- Updated requirements.txt for new dependencies
+### Goals Achieved
+- Implemented REST API using FastAPI
+- Added routing for inventory endpoints
+- Integrated API with InventoryManager
+- Created automated API tests using pytest and TestClient
+- Updated requirements.txt for new dependencies
 
 ## Project Structure
 ```
@@ -251,15 +247,11 @@ Week_5/
 ```
 ## Key Features
 
-FastAPI Setup: app.py initializes application and includes routers
+- Routing: CRUD endpoints for inventory management
+- Integration: API layer communicates with core business logic
+- Testing: Endpoint validation with pytest and fastapi.testclien
 
-Routing: CRUD endpoints for inventory management
-
-Integration: API layer communicates with core business logic
-
-Testing: Endpoint validation with pytest and fastapi.testclient
-
-Example Endpoint
+**Example Endpoint**
 ```
 @app.get("/inventory")
 def get_inventory():
@@ -267,21 +259,72 @@ def get_inventory():
 
 ```
 
-Overall Project Progression
-Week	Paradigm	Key Concepts	Code Quality
-1	Scripting	Git, Python basics	Basic structure
-2	Procedural	Data structures, file I/O	Error handling
-3	Object-Oriented	Classes, inheritance, SOLID	Clean architecture
-4	Test-Driven	Testing, mocking, coverage	Production-ready
-5	API-Driven	FastAPI, routing, integration	Deployable backend
+### Week 6: Database Integration & Flask API
+**Branch**: `feat/week-6 → develop`
+
+### Goals Achieved
+- Integrated Flask with SQLAlchemy ORM for database operations
+- Implemented Alembic migrations for schema versioning
+- Designed Pydantic schemas for request/response validation
+- Added CRUD API endpoints for products
+- Created database seeding scripts with CSV data
+- Improved test coverage with database fixtures and API tests
+
+## Project Structure
+```
+Week_6/
+├── api/
+│   ├── app.py            # Flask app entry point
+│   ├── config.py         # Config (PostgreSQL / SQLite support)
+│   ├── db.py             # SQLAlchemy database instance
+│   ├── __init__.py       # App factory
+│   ├── models.py         # Product models
+│   ├── routes.py         # CRUD API routes
+│   ├── seed.py           # Database seeding logic
+│   └── schemas/          # Request & response schemas
+│       ├── request.py
+│       └── response.py
+├── data/
+│   └── products.csv      # Sample seed data
+├── instance/
+│   └── inventory.db      # SQLite DB (optional)
+├── migrations/           # Alembic migration files
+└── tests/
+    ├── conftest.py       # Shared test config
+    ├── test_models.py    # Database model tests
+    ├── test_routes_api.py# API tests
+    └── test_seed.py      # Seeder tests
+```
+
+## Key Features
+
+Database Models:
+Product, FoodItem, ElectronicItem, BookItem implemented via SQLAlchemy.
+
+Migrations:
+Alembic used for version-controlled schema updates.
+
+Seeding:
+seed.py reads from data/products.csv and populates DB.
+
+API Endpoints:
+
+GET /products → List all products
+GET /products/<id> → Get single product
+POST /products → Add new product
+PUT /products/<id> → Update product
+DELETE /products/<id> → Remove product
+
+Validation:
+Pydantic schemas for request & response models.
+
+Testing:
+Fixtures for DB setup/teardown
+API route testing with pytest
+Coverage improved to ~98%
 
 
 ##  Next Steps & Potential Enhancements
-
-### Immediate Improvements
-- [ ] Add database integration (SQLite/PostgreSQL)
-- [ ] Add user authentication and authorization
-- [ ] Create web-based UI
 
 ### Advanced Features
 - [ ] Docker containerization

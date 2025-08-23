@@ -71,13 +71,6 @@ inventory-manager/
 ├── pytest.ini
 ├── README.md
 ├── setup.cfg
-├── tests
-│   ├── conftest.py
-│   ├── requirements.txt
-│   ├── test_core.py
-│   ├── test_models.py
-│   ├── test_models_using_fixtures.py
-│   └── test_utils.py
 ├── Week_1
 │   ├── datatypes_demo.py
 │   ├── main.py
@@ -115,16 +108,50 @@ inventory-manager/
 │   ├── main.py
 │   ├── pyproject.toml
 │   └── requirements.txt
+├── Week_4
+├── ├── tests
+│       ├── conftest.py
+│       ├── requirements.txt
+│       ├── test_core.py
+│       ├── test_models.py
+│       ├── test_models_using_fixtures.py
+│       └── test_utils.py
 └── Week_5
-    ├── api
-    │   ├── __init__.py
-    │   └── routes.py
-    ├── app.py
-    ├── Day1
-    │   ├── hello.py
-    ├── requirements.txt
-    ├── tests
-    │   └── test_routes.py
+│   ├── api
+│   │   ├── __init__.py
+│   │   └── routes.py
+│   │   └── routes.py
+│   ├── app.py
+│   ├── Day1
+│   │   ├── hello.py
+│   ├── requirements.txt
+│   ├── tests
+│   │   └── test_routes.py
+├── Week_6
+├── api/
+│   ├── app.py              # Entry point
+│   ├── config.py           # Configurations
+│   ├── db.py               # Database instance
+│   ├── __init__.py         # App factory
+│   ├── models.py           # SQLAlchemy models
+│   ├── routes.py           # Product CRUD routes
+│   ├── seed.py             # Seeder script
+│   └── schemas/            # Request/response schemas
+│
+├── data/
+│   └── products.csv        # Sample product data
+│
+├── instance/
+│   └── inventory.db        # SQLite DB (if used)
+│
+├── migrations/             # Alembic migrations
+│
+└── tests/
+    ├── conftest.py
+    ├── test_models.py
+    ├── test_routes_api.py
+    └── test_seed.py
+
   ```
 
 ##  Configuration

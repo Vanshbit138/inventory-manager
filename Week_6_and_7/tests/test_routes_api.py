@@ -13,8 +13,8 @@ import sys
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from Week_6_7.api.db import db
-from Week_6_7.api.models import FoodProduct, ElectronicProduct, BookProduct
+from Week_6_and_7.api.db import db
+from Week_6_and_7.api.models import FoodProduct, ElectronicProduct, BookProduct
 
 
 def test_get_all_products_success(client, test_app):
@@ -35,7 +35,7 @@ def test_get_all_products_success(client, test_app):
 
 def test_get_all_products_db_error(client):
     """Test GET /products/ returns 500 if DB query fails."""
-    with patch("Week_6_7.api.routes.Product.query") as mock_query:
+    with patch("Week_6_and_7.api.routes.Product.query") as mock_query:
         mock_query.all.side_effect = SQLAlchemyError("DB fail")
         res = client.get("/products/")
         assert res.status_code == 500
@@ -113,7 +113,7 @@ def test_create_product_validation_error(client):
 def test_create_product_db_error(client):
     """Test POST /products/ returns 500 when DB commit fails."""
     with patch(
-        "Week_6_7.api.routes.db.session.add", side_effect=SQLAlchemyError("DB fail")
+        "Week_6_and_7.api.routes.db.session.add", side_effect=SQLAlchemyError("DB fail")
     ):
         res = client.post(
             "/products/",
@@ -186,7 +186,8 @@ def test_update_product_db_error(client, test_app):
         pid = p.product_id
 
     with patch(
-        "Week_6_7.api.routes.db.session.commit", side_effect=SQLAlchemyError("DB fail")
+        "Week_6_and_7.api.routes.db.session.commit",
+        side_effect=SQLAlchemyError("DB fail"),
     ):
         res = client.put(f"/products/{pid}", json={"price": 300})
         assert res.status_code == 500
@@ -222,7 +223,8 @@ def test_delete_product_db_error(client, test_app):
         pid = p.product_id
 
     with patch(
-        "Week_6_7.api.routes.db.session.delete", side_effect=SQLAlchemyError("DB fail")
+        "Week_6_and_7.api.routes.db.session.delete",
+        side_effect=SQLAlchemyError("DB fail"),
     ):
         res = client.delete(f"/products/{pid}")
         assert res.status_code == 500

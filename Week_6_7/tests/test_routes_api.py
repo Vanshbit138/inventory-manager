@@ -13,8 +13,8 @@ import sys
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from Week_6.api.db import db
-from Week_6.api.models import FoodProduct, ElectronicProduct, BookProduct
+from Week_6_7.api.db import db
+from Week_6_7.api.models import FoodProduct, ElectronicProduct, BookProduct
 
 
 def test_get_all_products_success(client, test_app):

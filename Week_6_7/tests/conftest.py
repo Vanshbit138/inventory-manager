@@ -6,8 +6,8 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from Week_6.api.app import create_app
-from Week_6.api.db import db
+from Week_6_7.api.app import create_app
+from Week_6_7.api.db import db
 
 
 @pytest.fixture(scope="module")

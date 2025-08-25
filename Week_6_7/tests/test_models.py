@@ -1,7 +1,7 @@
 # Week_6/tests/test_models.py
 import pytest
 from datetime import date
-from Week_6.api.models import Product, FoodProduct, ElectronicProduct, BookProduct
+from Week_6_7.api.models import Product, FoodProduct, ElectronicProduct, BookProduct
 
 
 # ---------------- Fixtures ----------------

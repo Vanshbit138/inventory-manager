@@ -2,7 +2,8 @@
 from flask import Blueprint, request, jsonify
 from ..db import db
 from ..models import User
-from ..security.jwt_utils import encode_jwt
+from ..security.jwt_utils import encode_jwt, encode_refresh_jwt, decode_jwt
+import jwt
 
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -58,18 +59,24 @@ def register():
 @auth_bp.post("/login")
 def login():
     """
-    Authenticate user and return JWT.
+    Authenticate user and return both access & refresh tokens.
 
-    Payload:
+    Request:
         {
             "username": "<username>",
             "password": "<password>"
         }
 
     Responses:
-        200 OK: Returns JWT token
-        401 Unauthorized: Invalid credentials
-        422 Unprocessable Entity: Missing username/password
+        200 OK:
+            {
+                "access_token": "<jwt-access-token>",
+                "refresh_token": "<jwt-refresh-token>"
+            }
+        401 Unauthorized:
+            {"error": "invalid credentials"}
+        422 Unprocessable Entity:
+            {"error": "username and password required"}
     """
     data = request.get_json(force=True) or {}
     username = data.get("username")
@@ -82,5 +89,44 @@ def login():
     if not user or not user.check_password(password):
         return jsonify({"error": "invalid credentials"}), 401
 
-    token = encode_jwt(user.id, user.role)
-    return jsonify({"access_token": token}), 200
+    access_token = encode_jwt(user.id, user.role)
+    refresh_token = encode_refresh_jwt(user.id)
+
+    return jsonify({"access_token": access_token, "refresh_token": refresh_token}), 200
+
+
+@auth_bp.post("/refresh")
+def refresh():
+    """
+    Exchange a refresh token for a new access token.
+
+    Request:
+        {
+            "refresh_token": "<jwt-refresh-token>"
+        }
+
+    Responses:
+        200 OK:
+            {"access_token": "<new-jwt-access-token>"}
+        401 Unauthorized:
+            {"error": "Invalid or expired refresh token"}
+    """
+    data = request.get_json(force=True) or {}
+    refresh_token = data.get("refresh_token")
+
+    if not refresh_token:
+        return jsonify({"error": "refresh_token required"}), 422
+
+    try:
+        payload = decode_jwt(refresh_token)
+        if payload.get("type") != "refresh":
+            return jsonify({"error": "Invalid token type"}), 401
+
+        new_access_token = encode_jwt(
+            payload["sub"], "viewer"
+        )  # ideally lookup role from DB
+        return jsonify({"access_token": new_access_token}), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Refresh token expired"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "Invalid refresh token"}), 401

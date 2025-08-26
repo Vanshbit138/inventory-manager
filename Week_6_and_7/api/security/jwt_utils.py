@@ -70,3 +70,28 @@ def decode_jwt(token: str) -> Dict[str, Any]:
         - Always call this inside a try/except block to handle expired or invalid tokens.
     """
     return jwt.decode(token, _secret(), algorithms=[ALGO])
+
+
+def encode_refresh_jwt(sub: int, expires_in: int | None = None) -> str:
+    """
+    Generate a Refresh JSON Web Token (JWT).
+
+    Args:
+        sub (int): Subject (user ID).
+        expires_in (int | None): Expiration in seconds.
+                                 Defaults to JWT_REFRESH_EXPIRES_IN (7 days).
+
+    Returns:
+        str: Encoded refresh JWT string.
+
+    Notes:
+        - Refresh tokens live longer (default 7 days).
+        - Payload contains 'sub', 'type'='refresh', and 'exp'.
+        - Unlike access tokens, refresh tokens should NOT be used for
+          authorizing normal API requests — only for getting new access tokens.
+    """
+    exp = int(time.time()) + int(
+        expires_in or int(os.environ.get("JWT_REFRESH_EXPIRES_IN", 604800))  # 7 days
+    )
+    payload = {"sub": str(sub), "type": "refresh", "exp": exp}
+    return jwt.encode(payload, _secret(), algorithm=ALGO)

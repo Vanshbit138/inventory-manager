@@ -5,7 +5,7 @@ from ..models import User
 from .jwt_utils import decode_jwt
 
 
-def jwt_required(f):
+def jwt_required(view_func):
     """
     Decorator to protect routes and ensure the user provides a valid JWT.
 
@@ -15,7 +15,7 @@ def jwt_required(f):
             ...
     """
 
-    @wraps(f)
+    @wraps(view_func)
     def decorated(*args, **kwargs):
         auth_header = request.headers.get("Authorization", None)
         if not auth_header or not auth_header.startswith("Bearer "):
@@ -35,6 +35,7 @@ def jwt_required(f):
                 401,
             )
 
-        return f(*args, **kwargs)
+        # Call the original route handler
+        return view_func(*args, **kwargs)
 
     return decorated

@@ -45,7 +45,7 @@ def encode_jwt(sub: int, role: str, expires_in: int | None = None) -> str:
     exp = int(time.time()) + int(
         expires_in or int(os.environ.get("JWT_EXPIRES_IN", 3600))
     )
-    payload = {"sub": sub, "role": role, "exp": exp}
+    payload = {"sub": str(sub), "role": role, "exp": exp}
     return jwt.encode(payload, _secret(), algorithm=ALGO)
 
 

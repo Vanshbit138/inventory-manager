@@ -12,6 +12,7 @@ from .schemas.request import (
     BookProductUpdate,
 )
 from .schemas.response import ProductResponse
+from .security.decorators import jwt_required
 
 products_bp = Blueprint("products", __name__, url_prefix="/products")
 
@@ -100,6 +101,7 @@ def get_product(product_id: int) -> tuple:
 # POST create product
 # ----------------------
 @products_bp.route("/", methods=["POST"])
+@jwt_required
 def create_product() -> tuple:
     """
     Create a new product based on its type (food, electronic, or book).
@@ -137,6 +139,7 @@ def create_product() -> tuple:
 # PUT update product
 # ----------------------
 @products_bp.route("/<int:product_id>", methods=["PUT"])
+@jwt_required
 def update_product(product_id: int) -> tuple:
     """
     Update an existing product by its ID.
@@ -182,6 +185,7 @@ def update_product(product_id: int) -> tuple:
 # DELETE product
 # ----------------------
 @products_bp.route("/<int:product_id>", methods=["DELETE"])
+@jwt_required
 def delete_product(product_id: int) -> tuple:
     """
     Delete a product by its ID.

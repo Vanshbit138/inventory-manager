@@ -123,10 +123,17 @@ def refresh():
         if payload.get("type") != "refresh":
             return jsonify({"error": "Invalid token type"}), 401
 
-        new_access_token = encode_jwt(
-            payload["sub"], "viewer"
-        )  # ideally lookup role from DB
+        # fetch role from DB
+        user_id = payload["sub"]
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        # generate new access token with correct role
+        new_access_token = encode_jwt(user.id, user.role)
+
         return jsonify({"access_token": new_access_token}), 200
+
     except jwt.ExpiredSignatureError:
         return jsonify({"error": "Refresh token expired"}), 401
     except jwt.InvalidTokenError:

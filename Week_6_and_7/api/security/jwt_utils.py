@@ -3,6 +3,7 @@ import os
 import time
 import jwt
 from typing import Dict, Any
+from flask import request
 
 ALGO = "HS256"
 
@@ -21,31 +22,32 @@ def _secret() -> str:
     return os.environ.get("SECRET_KEY", "dev-secret-override-me")
 
 
-def encode_jwt(sub: int, role: str, expires_in: int | None = None) -> str:
+def encode_jwt(
+    sub: int, role: str, token_type: str = "access", expires_in: int | None = None
+) -> str:
     """
-    Generate a JSON Web Token (JWT) for authentication and authorization.
+    Generate a JSON Web Token (JWT) for access or refresh.
 
     Args:
-        sub (int): Subject (typically the user ID).
+        sub (int): Subject (user ID).
         role (str): Role of the user (e.g., "admin", "manager", "viewer").
-        expires_in (int | None): Expiration time in seconds. Defaults to value from
-                                 environment variable JWT_EXPIRES_IN (default: 3600s = 1 hour).
+        token_type (str): "access" or "refresh".
+        expires_in (int | None): Expiration time in seconds.
+                                 Defaults: 3600s (1h) for access, 7 days for refresh.
 
     Returns:
-        str: Encoded JWT string that can be sent to the client.
-
-    Example:
-        >>> encode_jwt(1, "admin", 600)
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-
-    Notes:
-        - The payload contains `sub`, `role`, and `exp` (expiry timestamp).
-        - Algorithm used: HS256 (HMAC with SHA-256).
+        str: Encoded JWT string.
     """
-    exp = int(time.time()) + int(
-        expires_in or int(os.environ.get("JWT_EXPIRES_IN", 3600))
-    )
-    payload = {"sub": sub, "role": role, "exp": exp}
+    if token_type == "access":
+        exp = int(time.time()) + int(
+            expires_in or int(os.environ.get("JWT_EXPIRES_IN", 3600))
+        )
+    else:  # refresh
+        exp = int(time.time()) + int(
+            expires_in or int(os.environ.get("JWT_REFRESH_EXPIRES_IN", 604800))
+        )
+
+    payload = {"sub": str(sub), "role": role, "type": token_type, "exp": exp}
     return jwt.encode(payload, _secret(), algorithm=ALGO)
 
 
@@ -65,8 +67,48 @@ def decode_jwt(token: str) -> Dict[str, Any]:
     Raises:
         jwt.ExpiredSignatureError: If the token has expired.
         jwt.InvalidTokenError: If the token signature or structure is invalid.
-
-    Notes:
-        - Always call this inside a try/except block to handle expired or invalid tokens.
     """
     return jwt.decode(token, _secret(), algorithms=[ALGO])
+
+
+def encode_refresh_jwt(sub: int, expires_in: int | None = None) -> str:
+    """
+    Generate a Refresh JSON Web Token (JWT).
+
+    Args:
+        sub (int): Subject (user ID).
+        expires_in (int | None): Expiration in seconds.
+                                 Defaults to JWT_REFRESH_EXPIRES_IN (7 days).
+
+    Returns:
+        str: Encoded refresh JWT string.
+    """
+    exp = int(time.time()) + int(
+        expires_in or int(os.environ.get("JWT_REFRESH_EXPIRES_IN", 604800))  # 7 days
+    )
+    payload = {"sub": str(sub), "type": "refresh", "exp": exp}
+    return jwt.encode(payload, _secret(), algorithm=ALGO)
+
+
+def get_jwt_identity() -> Dict[str, Any]:
+    """
+    Extract the current user's identity from the Authorization header JWT.
+
+    Returns:
+        Dict[str, Any]: Dictionary containing at least 'sub' (user id) and 'role'.
+
+    Raises:
+        ValueError: If Authorization header is missing or token is invalid.
+    """
+    auth_header = request.headers.get("Authorization", None)
+    if not auth_header:
+        raise ValueError("Authorization header missing")
+
+    try:
+        token_type, token = auth_header.split()
+        if token_type.lower() != "bearer":
+            raise ValueError("Authorization header must start with Bearer")
+        payload = decode_jwt(token)
+        return payload
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, ValueError) as e:
+        raise ValueError(f"Invalid token: {e}")

@@ -30,3 +30,11 @@ class ProductResponse(BaseModel):
     pages: Optional[int] = None
 
     model_config = ConfigDict(from_attributes=True)  # ORM mode
+
+
+class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    username: str
+    role: str

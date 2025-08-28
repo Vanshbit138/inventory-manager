@@ -3,6 +3,7 @@ import os
 import time
 import jwt
 from typing import Dict, Any
+from flask import request
 
 ALGO = "HS256"
 
@@ -33,14 +34,6 @@ def encode_jwt(sub: int, role: str, expires_in: int | None = None) -> str:
 
     Returns:
         str: Encoded JWT string that can be sent to the client.
-
-    Example:
-        >>> encode_jwt(1, "admin", 600)
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-
-    Notes:
-        - The payload contains `sub`, `role`, and `exp` (expiry timestamp).
-        - Algorithm used: HS256 (HMAC with SHA-256).
     """
     exp = int(time.time()) + int(
         expires_in or int(os.environ.get("JWT_EXPIRES_IN", 3600))
@@ -65,9 +58,6 @@ def decode_jwt(token: str) -> Dict[str, Any]:
     Raises:
         jwt.ExpiredSignatureError: If the token has expired.
         jwt.InvalidTokenError: If the token signature or structure is invalid.
-
-    Notes:
-        - Always call this inside a try/except block to handle expired or invalid tokens.
     """
     return jwt.decode(token, _secret(), algorithms=[ALGO])
 
@@ -83,15 +73,33 @@ def encode_refresh_jwt(sub: int, expires_in: int | None = None) -> str:
 
     Returns:
         str: Encoded refresh JWT string.
-
-    Notes:
-        - Refresh tokens live longer (default 7 days).
-        - Payload contains 'sub', 'type'='refresh', and 'exp'.
-        - Unlike access tokens, refresh tokens should NOT be used for
-          authorizing normal API requests — only for getting new access tokens.
     """
     exp = int(time.time()) + int(
         expires_in or int(os.environ.get("JWT_REFRESH_EXPIRES_IN", 604800))  # 7 days
     )
     payload = {"sub": str(sub), "type": "refresh", "exp": exp}
     return jwt.encode(payload, _secret(), algorithm=ALGO)
+
+
+def get_jwt_identity() -> Dict[str, Any]:
+    """
+    Extract the current user's identity from the Authorization header JWT.
+
+    Returns:
+        Dict[str, Any]: Dictionary containing at least 'sub' (user id) and 'role'.
+
+    Raises:
+        ValueError: If Authorization header is missing or token is invalid.
+    """
+    auth_header = request.headers.get("Authorization", None)
+    if not auth_header:
+        raise ValueError("Authorization header missing")
+
+    try:
+        token_type, token = auth_header.split()
+        if token_type.lower() != "bearer":
+            raise ValueError("Authorization header must start with Bearer")
+        payload = decode_jwt(token)
+        return payload
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, ValueError) as e:
+        raise ValueError(f"Invalid token: {e}")

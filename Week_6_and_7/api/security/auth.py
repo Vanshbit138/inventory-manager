@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from ..db import db
 from ..models import User
 from ..security.jwt_utils import encode_jwt, encode_refresh_jwt, decode_jwt
+from ..schemas.response import UserResponse
 import jwt
 
 
@@ -53,7 +54,7 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    return jsonify(user.to_dict()), 201
+    return jsonify(UserResponse.model_validate(user).model_dump()), 201
 
 
 @auth_bp.post("/login")

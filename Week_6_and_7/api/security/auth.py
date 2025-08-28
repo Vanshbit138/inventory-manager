@@ -108,19 +108,9 @@ def login():
 @auth_bp.post("/refresh")
 def refresh():
     """
-    Exchange a refresh token for a new access token.
-
-    Request:
-        {
-            "refresh_token": "<jwt-refresh-token>"
-        }
-
-    Responses:
-        200 OK:
-            {"access_token": "<new-jwt-access-token>"}
-        401 Unauthorized:
-            {"error": "Invalid or expired refresh token"}
+    Exchange a refresh token for a new access + refresh token (rotation).
     """
+
     data = request.get_json(force=True) or {}
     refresh_token = data.get("refresh_token")
 
@@ -138,10 +128,22 @@ def refresh():
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        # generate new access token with correct role
-        new_access_token = encode_jwt(user.id, user.role)
+        #  generate new tokens (ROTATION)
+        new_access_token = encode_jwt(user.id, user.role, token_type="access")
+        new_refresh_token = encode_jwt(user.id, user.role, token_type="refresh")
 
-        return jsonify({"access_token": new_access_token, "role": user.role}), 200
+        return (
+            jsonify(
+                {
+                    "access_token": new_access_token,
+                    "refresh_token": new_refresh_token,
+                    "role": user.role,
+                    "username": user.username,
+                    "id": user.id,
+                }
+            ),
+            200,
+        )
 
     except jwt.ExpiredSignatureError:
         return jsonify({"error": "Refresh token expired"}), 401

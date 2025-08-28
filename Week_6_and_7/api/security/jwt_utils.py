@@ -22,23 +22,32 @@ def _secret() -> str:
     return os.environ.get("SECRET_KEY", "dev-secret-override-me")
 
 
-def encode_jwt(sub: int, role: str, expires_in: int | None = None) -> str:
+def encode_jwt(
+    sub: int, role: str, token_type: str = "access", expires_in: int | None = None
+) -> str:
     """
-    Generate a JSON Web Token (JWT) for authentication and authorization.
+    Generate a JSON Web Token (JWT) for access or refresh.
 
     Args:
-        sub (int): Subject (typically the user ID).
+        sub (int): Subject (user ID).
         role (str): Role of the user (e.g., "admin", "manager", "viewer").
-        expires_in (int | None): Expiration time in seconds. Defaults to value from
-                                 environment variable JWT_EXPIRES_IN (default: 3600s = 1 hour).
+        token_type (str): "access" or "refresh".
+        expires_in (int | None): Expiration time in seconds.
+                                 Defaults: 3600s (1h) for access, 7 days for refresh.
 
     Returns:
-        str: Encoded JWT string that can be sent to the client.
+        str: Encoded JWT string.
     """
-    exp = int(time.time()) + int(
-        expires_in or int(os.environ.get("JWT_EXPIRES_IN", 3600))
-    )
-    payload = {"sub": str(sub), "role": role, "exp": exp}
+    if token_type == "access":
+        exp = int(time.time()) + int(
+            expires_in or int(os.environ.get("JWT_EXPIRES_IN", 3600))
+        )
+    else:  # refresh
+        exp = int(time.time()) + int(
+            expires_in or int(os.environ.get("JWT_REFRESH_EXPIRES_IN", 604800))
+        )
+
+    payload = {"sub": str(sub), "role": role, "type": token_type, "exp": exp}
     return jwt.encode(payload, _secret(), algorithm=ALGO)
 
 

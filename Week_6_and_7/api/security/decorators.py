@@ -48,8 +48,8 @@ def roles_required(*roles):
     Usage: @roles_required("admin", "manager")
     """
 
-    def decorator(f):
-        @wraps(f)
+    def decorator(view_func):
+        @wraps(view_func)
         def wrapper(*args, **kwargs):
             auth_header = request.headers.get("Authorization", "")
             if not auth_header.startswith("Bearer "):
@@ -70,7 +70,7 @@ def roles_required(*roles):
             except Exception as e:
                 return jsonify({"error": str(e)}), 401
 
-            return f(*args, **kwargs)
+            return view_func(*args, **kwargs)
 
         return wrapper
 

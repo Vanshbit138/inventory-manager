@@ -93,7 +93,16 @@ def login():
     access_token = encode_jwt(user.id, user.role)
     refresh_token = encode_refresh_jwt(user.id)
 
-    return jsonify({"access_token": access_token, "refresh_token": refresh_token}), 200
+    return (
+        jsonify(
+            {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "role": user.role,
+            }
+        ),
+        200,
+    )
 
 
 @auth_bp.post("/refresh")
@@ -132,7 +141,7 @@ def refresh():
         # generate new access token with correct role
         new_access_token = encode_jwt(user.id, user.role)
 
-        return jsonify({"access_token": new_access_token}), 200
+        return jsonify({"access_token": new_access_token, "role": user.role}), 200
 
     except jwt.ExpiredSignatureError:
         return jsonify({"error": "Refresh token expired"}), 401

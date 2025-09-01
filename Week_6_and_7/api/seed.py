@@ -4,20 +4,14 @@ from typing import Optional
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from flask import Flask
-from . import create_app
+from .app import create_app  # ✅ ensure correct import
 from .db import db
 from .models import Product, FoodProduct, ElectronicProduct, BookProduct
-
 
 app: Flask = create_app()
 
 
 def create_product_from_row(row: dict) -> Optional[Product]:
-    """
-    Factory function to create the correct Product subclass
-    based on the 'type' field in the CSV row.
-    Skips invalid rows (missing fields, invalid values).
-    """
     try:
         product_type = row.get("type", "").strip().lower()
         name = row.get("product_name") or row.get("name")
@@ -28,7 +22,6 @@ def create_product_from_row(row: dict) -> Optional[Product]:
         price = float(row["price"])
         quantity = int(row["quantity"])
 
-        # Skip invalid values
         if price <= 0 or quantity < 0:
             return None
 
@@ -36,15 +29,10 @@ def create_product_from_row(row: dict) -> Optional[Product]:
             if not row.get("expiry_date"):
                 return None
             expiry_date = datetime.strptime(row["expiry_date"], "%Y-%m-%d").date()
-            # Skip expired food
             if expiry_date < datetime.today().date():
                 return None
-
             return FoodProduct(
-                name=name,
-                price=price,
-                quantity=quantity,
-                expiry_date=expiry_date,
+                name=name, price=price, quantity=quantity, expiry_date=expiry_date
             )
 
         elif product_type == "electronic":
@@ -68,21 +56,16 @@ def create_product_from_row(row: dict) -> Optional[Product]:
                 pages=int(row["pages"]),
             )
 
-        else:
-            # Unknown product type → skip
-            return None
-
+        return None
     except (ValueError, KeyError) as e:
         print(f" Skipping row due to error: {e} → {row}")
         return None
 
 
 def seed_db() -> None:
-    """
-    Seed the database with products from data/products.csv.
-    Uses SQLAlchemy for persistence.
-    """
-    csv_path = os.path.join(os.path.dirname(__file__), "..", "data", "products.csv")
+    csv_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "data", "products.csv")
+    )
 
     with app.app_context():
         try:
@@ -91,10 +74,12 @@ def seed_db() -> None:
                 for row in reader:
                     product = create_product_from_row(row)
                     if product:
-                        db.session.add(product)
+                        existing = Product.query.filter_by(name=product.name).first()
+                        if not existing:  # avoid duplicates
+                            db.session.add(product)
 
                 db.session.commit()
-                print(" Database seeded successfully!")
+                print("Database seeded successfully!")
 
         except FileNotFoundError:
             print(f" CSV file not found at {csv_path}")

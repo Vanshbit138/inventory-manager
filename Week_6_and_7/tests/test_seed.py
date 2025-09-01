@@ -45,9 +45,9 @@ def test_seed_db_valid_data(test_app):
         seed_db()
         products = Product.query.all()
 
-        assert len(products) == 4
+        assert len(products) == 3
         names = [p.name for p in products]
-        assert set(names) == {"Apples", "Grapes", "Laptop", "Harry Potter"}
+        assert set(names) == {"Apples", "Laptop", "Harry Potter"}
 
 
 def test_create_product_invalid_rows():

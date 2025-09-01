@@ -303,7 +303,9 @@ Week_6_and_7/
 │   
 ├── tests/                  # Unit & integration tests
 │   ├── conftest.py         # Shared pytest fixtures
+│   ├── test_auth.py        # Auth tests
 │   ├── test_models.py      # Database model tests
+│   ├── test_password.py    # Password tests
 │   ├── test_routes_api.py  # API tests
 │   └── test_seed.py        # Seeder tests
 ├── data/                   # (already included above, but double-check no duplicate)

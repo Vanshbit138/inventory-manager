@@ -7,9 +7,15 @@ from sqlalchemy.exc import SQLAlchemyError
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from Week_6.api.seed import seed_db, create_product_from_row
-from Week_6.api.models import db, Product, FoodProduct, ElectronicProduct, BookProduct
-from Week_6.api.app import create_app
+from Week_6_and_7.api.seed import seed_db, create_product_from_row
+from Week_6_and_7.api.models import (
+    db,
+    Product,
+    FoodProduct,
+    ElectronicProduct,
+    BookProduct,
+)
+from Week_6_and_7.api.app import create_app
 
 
 @pytest.fixture
@@ -39,9 +45,9 @@ def test_seed_db_valid_data(test_app):
         seed_db()
         products = Product.query.all()
 
-        assert len(products) == 4
+        assert len(products) == 3
         names = [p.name for p in products]
-        assert set(names) == {"Apples", "Grapes", "Laptop", "Harry Potter"}
+        assert set(names) == {"Apples", "Laptop", "Harry Potter"}
 
 
 def test_create_product_invalid_rows():

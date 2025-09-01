@@ -259,7 +259,7 @@ def get_inventory():
 
 ```
 
-### Week 6: Database Integration & Flask API
+### Week 6 & 7: Database Integration, Flask API & Authentication
 **Branch**: `feat/week-6 → develop`
 
 ### Goals Achieved
@@ -268,32 +268,52 @@ def get_inventory():
 - Designed Pydantic schemas for request/response validation
 - Added CRUD API endpoints for products
 - Created database seeding scripts with CSV data
+- Implemented User model with role-based access
+- Added /auth/register endpoint with secure password hashing (Werkzeug)
+- Integrated JWT-based authentication for session-less login
 - Improved test coverage with database fixtures and API tests
+- Updated config.py to load secrets & DB connection from .env
+- Created .env.example for project setup
 
 ## Project Structure
 ```
-Week_6/
+Week_6_and_7/
 ├── api/
-│   ├── app.py            # Flask app entry point
-│   ├── config.py         # Config (PostgreSQL / SQLite support)
-│   ├── db.py             # SQLAlchemy database instance
-│   ├── __init__.py       # App factory
-│   ├── models.py         # Product models
-│   ├── routes.py         # CRUD API routes
-│   ├── seed.py           # Database seeding logic
-│   └── schemas/          # Request & response schemas
-│       ├── request.py
-│       └── response.py
+│   ├── app.py              # Flask app entry point
+│   ├── config.py           # Config (PostgreSQL / SQLite support)
+│   ├── db.py               # SQLAlchemy database instance
+│   ├── __init__.py         # App factory
+│   ├── models.py           # Product + User models
+│   ├── routes.py           # CRUD API routes
+│   ├── seed.py             # Database seeding logic
+│   ├── schemas/            # Request & response schemas
+│   │   ├── __init__.py
+│   │   ├── request.py
+│   │   └── response.py
+│   └── security/           # Security & authentication
+│       ├── __init__.py
+│       ├── auth.py         # Authentication endpoints (/auth/register, login, etc.)
+│       ├── jwt_utils.py    # JWT encode/decode helpers
+│       └── password.py     # Password hashing & verification
 ├── data/
-│   └── products.csv      # Sample seed data
+│   └── products.csv        # Sample seed data
 ├── instance/
-│   └── inventory.db      # SQLite DB (optional)
-├── migrations/           # Alembic migration files
-└── tests/
-    ├── conftest.py       # Shared test config
-    ├── test_models.py    # Database model tests
-    ├── test_routes_api.py# API tests
-    └── test_seed.py      # Seeder tests
+│   └── inventory.db        # SQLite DB (optional)
+├── migrations/             # Alembic migration files
+│   
+├── tests/                  # Unit & integration tests
+│   ├── conftest.py         # Shared pytest fixtures
+│   ├── test_auth.py        # Auth tests
+│   ├── test_models.py      # Database model tests
+│   ├── test_password.py    # Password tests
+│   ├── test_routes_api.py  # API tests
+│   └── test_seed.py        # Seeder tests
+├── data/                   # (already included above, but double-check no duplicate)
+│   └── products.csv
+├── .env.example            # Example environment file
+├── README.md               # Project setup & documentation
+└── requirements.txt        # Python dependencies
+
 ```
 
 ## Key Features

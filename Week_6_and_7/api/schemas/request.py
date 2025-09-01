@@ -89,11 +89,13 @@ class FoodProductUpdate(BaseProductUpdate):
 class ElectronicProductUpdate(BaseProductUpdate):
     """Schema for updating an Electronic product."""
 
-    warranty_period: Optional[int] = None
+    warranty_period: int = Field(
+        ..., ge=0, description="Warranty period in months, must be >= 0"
+    )
 
 
 class BookProductUpdate(BaseProductUpdate):
     """Schema for updating a Book product."""
 
-    author: Optional[str] = None
-    pages: Optional[int] = None
+    author: str = Field(..., min_length=3)
+    pages: int = Field(..., gt=0, description="Number of pages, must be > 0")

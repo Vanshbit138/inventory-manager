@@ -127,32 +127,44 @@ inventory-manager/
 │   ├── requirements.txt
 │   ├── tests
 │   │   └── test_routes.py
-├── Week_6
+└──Week_6_and_7/
 ├── api/
-│   ├── app.py              # Entry point
-│   ├── config.py           # Configurations
-│   ├── db.py               # Database instance
-│   ├── __init__.py         # App factory
-│   ├── models.py           # SQLAlchemy models
-│   ├── routes.py           # Product CRUD routes
-│   ├── seed.py             # Seeder script
-│   └── schemas/            # Request/response schemas
-│
+│   ├── app.py              
+│   ├── config.py         
+│   ├── db.py              
+│   ├── __init__.py        
+│   ├── models.py        
+│   ├── routes.py  
+│   ├── seed.py           
+│   ├── schemas/             
+│   │   ├── __init__.py
+│   │   ├── request.py
+│   │   └── response.py
+│   └── security/           
+│       ├── __init__.py
+│       ├── auth.py         
+│       ├── jwt_utils.py    
+│       └── password.py      
 ├── data/
-│   └── products.csv        # Sample product data
-│
+│   └── products.csv
 ├── instance/
-│   └── inventory.db        # SQLite DB (if used)
-│
-├── migrations/             # Alembic migrations
-│
-└── tests/
-    ├── conftest.py
-    ├── test_models.py
-    ├── test_routes_api.py
-    └── test_seed.py
+│   └── inventory.db    
+├── migrations/            
+│   
+├── tests/                  
+│   ├── conftest.py         
+│   ├── test_auth.py        
+│   ├── test_models.py      
+│   ├── test_password.py   
+│   ├── test_routes_api.py  
+│   └── test_seed.py       
+├── data/                   
+│   └── products.csv
+├── .env.example          
+├── README.md               
+└── requirements.txt        
 
-  ```
+```
 
 ##  Configuration
 

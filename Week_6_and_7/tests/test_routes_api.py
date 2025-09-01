@@ -1,4 +1,11 @@
 def test_viewer_can_get_products(client, tokens):
+    """
+    Test that a viewer can fetch the list of products.
+
+    Steps:
+        - Send GET request to /products/ with viewer token.
+        - Expect HTTP 200 OK response.
+    """
     resp = client.get(
         "/products/", headers={"Authorization": f"Bearer {tokens['viewer']}"}
     )
@@ -6,6 +13,14 @@ def test_viewer_can_get_products(client, tokens):
 
 
 def test_manager_can_create_product(client, tokens):
+    """
+    Test that a manager can create a new electronic product.
+
+    Steps:
+        - Send POST request with product data using manager token.
+        - Expect HTTP 201 Created response.
+        - Verify returned product data matches input.
+    """
     product = {
         "name": "Laptop",
         "price": 1000,
@@ -24,6 +39,13 @@ def test_manager_can_create_product(client, tokens):
 
 
 def test_viewer_cannot_create_product(client, tokens):
+    """
+    Test that a viewer cannot create any product.
+
+    Steps:
+        - Send POST request with product data using viewer token.
+        - Expect HTTP 403 Forbidden response.
+    """
     product = {
         "name": "Apple",
         "price": 3,
@@ -40,7 +62,15 @@ def test_viewer_cannot_create_product(client, tokens):
 
 
 def test_update_product_as_manager(client, tokens):
-    # Create first
+    """
+    Test that a manager can update their own product.
+
+    Steps:
+        - Manager creates a product.
+        - Update product price.
+        - Expect HTTP 200 OK response.
+        - Verify updated price is reflected.
+    """
     product = {
         "name": "Book1",
         "price": 20,
@@ -56,10 +86,9 @@ def test_update_product_as_manager(client, tokens):
     )
     product_id = resp.get_json()["product_id"]
 
-    # Update with full payload
     updated_product = {
         "name": "Book1",
-        "price": 25,  # updated field
+        "price": 25,
         "quantity": 1,
         "type": "book",
         "author": "Author",
@@ -75,7 +104,14 @@ def test_update_product_as_manager(client, tokens):
 
 
 def test_update_product_forbidden_if_not_owner(client, tokens):
-    # Admin creates
+    """
+    Test that updating a product by a non-owner (without admin role) is forbidden.
+
+    Steps:
+        - Admin creates a product.
+        - Manager attempts to update the product.
+        - Expect HTTP 403 Forbidden response.
+    """
     product = {
         "name": "Book2",
         "price": 10,
@@ -91,7 +127,6 @@ def test_update_product_forbidden_if_not_owner(client, tokens):
     )
     product_id = resp.get_json()["product_id"]
 
-    # Manager tries update → forbidden
     resp = client.put(
         f"/products/{product_id}",
         json={"price": 15},
@@ -101,6 +136,14 @@ def test_update_product_forbidden_if_not_owner(client, tokens):
 
 
 def test_delete_product_as_admin(client, tokens):
+    """
+    Test that an admin can delete any product.
+
+    Steps:
+        - Admin creates a product.
+        - Delete the product.
+        - Expect HTTP 200 OK response with success message.
+    """
     product = {
         "name": "TV",
         "price": 500,
@@ -124,7 +167,14 @@ def test_delete_product_as_admin(client, tokens):
 
 
 def test_delete_product_forbidden_for_manager(client, tokens):
-    # Admin creates
+    """
+    Test that a manager cannot delete a product they do not own.
+
+    Steps:
+        - Admin creates a product.
+        - Manager attempts to delete it.
+        - Expect HTTP 403 Forbidden response.
+    """
     product = {
         "name": "Phone",
         "price": 600,
@@ -139,7 +189,6 @@ def test_delete_product_forbidden_for_manager(client, tokens):
     )
     product_id = resp.get_json()["product_id"]
 
-    # Manager tries delete
     resp = client.delete(
         f"/products/{product_id}",
         headers={"Authorization": f"Bearer {tokens['manager']}"},

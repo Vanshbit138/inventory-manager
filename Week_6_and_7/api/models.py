@@ -18,7 +18,7 @@ class Product(db.Model):
     quantity: int = db.Column(db.Integer, nullable=False, default=0)
     price: float = db.Column(db.Float, nullable=False)
     type: str = db.Column(db.String(50), nullable=False)
-    owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     owner = db.relationship("User", back_populates="products")
 
     __mapper_args__ = {

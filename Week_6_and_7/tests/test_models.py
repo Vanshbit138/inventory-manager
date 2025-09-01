@@ -1,4 +1,3 @@
-# tests/test_models.py
 import os
 import tempfile
 import pytest
@@ -18,7 +17,16 @@ from Week_6_and_7.api.models import (
 
 @pytest.fixture
 def test_app():
-    """Create a new app with a temporary DB for testing."""
+    """
+    Create a new Flask app instance with a temporary SQLite database for testing.
+
+    Yields:
+        Flask app instance configured for testing.
+
+    Notes:
+        - The database file is removed after tests complete.
+        - Ensures isolation of test environment from the production database.
+    """
     db_fd, db_path = tempfile.mkstemp()
     app = create_app()
     app.config.update(
@@ -36,7 +44,15 @@ def test_app():
 
 @pytest.fixture
 def session(test_app):
-    """Provide a SQLAlchemy session inside app context."""
+    """
+    Provide a SQLAlchemy session for tests.
+
+    Yields:
+        SQLAlchemy session object.
+
+    Notes:
+        - Rolls back changes and resets database after each test to maintain isolation.
+    """
     with test_app.app_context():
         yield db.session
         db.session.rollback()
@@ -45,7 +61,15 @@ def session(test_app):
 
 
 def test_user_password_hashing(session):
-    """Ensure password hashing and verification works."""
+    """
+    Test password hashing and verification for the User model.
+
+    Steps:
+        1. Create a User and set a password.
+        2. Ensure the stored password hash is not equal to the plaintext password.
+        3. Verify that check_password works for correct and incorrect passwords.
+        4. Save to DB and retrieve to ensure persistence.
+    """
     user = User(username="alice", role="admin")
     user.set_password("secret123")
 
@@ -63,7 +87,14 @@ def test_user_password_hashing(session):
 
 
 def test_product_total_value(session):
-    """Ensure get_total_value works properly."""
+    """
+    Test that the Product model correctly calculates total value.
+
+    Steps:
+        1. Create a Product with price and quantity.
+        2. Check that get_total_value returns correct total.
+        3. Validate string representation of the Product.
+    """
     user = User(username="bob", role="manager")
     user.set_password("pass")
     session.add(user)
@@ -80,7 +111,14 @@ def test_product_total_value(session):
 
 
 def test_food_product_creation(session):
-    """Ensure FoodProduct is stored and retrieved properly."""
+    """
+    Test creation and retrieval of a FoodProduct.
+
+    Steps:
+        1. Create a FoodProduct with expiry date.
+        2. Save to DB and retrieve.
+        3. Ensure retrieved object has correct attributes and type.
+    """
     user = User(username="carl", role="viewer")
     user.set_password("pass")
     session.add(user)
@@ -102,6 +140,14 @@ def test_food_product_creation(session):
 
 
 def test_electronic_product_creation(session):
+    """
+    Test creation and retrieval of an ElectronicProduct.
+
+    Steps:
+        1. Create an ElectronicProduct with warranty_period.
+        2. Save to DB and retrieve.
+        3. Ensure attributes are correct and instance type is ElectronicProduct.
+    """
     user = User(username="dana", role="viewer")
     user.set_password("pass")
     session.add(user)
@@ -123,6 +169,14 @@ def test_electronic_product_creation(session):
 
 
 def test_book_product_creation(session):
+    """
+    Test creation and retrieval of a BookProduct.
+
+    Steps:
+        1. Create a BookProduct with author and pages.
+        2. Save to DB and retrieve.
+        3. Verify attributes and instance type.
+    """
     user = User(username="eric", role="viewer")
     user.set_password("pass")
     session.add(user)
@@ -146,7 +200,14 @@ def test_book_product_creation(session):
 
 
 def test_user_product_relationship_and_cascade(session):
-    """Ensure products are linked to a user and cascade deletes work."""
+    """
+    Test the relationship between User and Product and cascade deletes.
+
+    Steps:
+        1. Create a User and multiple Products linked to the user.
+        2. Verify products are linked to user.
+        3. Delete the user and ensure all related products are also deleted.
+    """
     user = User(username="frank", role="admin")
     user.set_password("adminpass")
 

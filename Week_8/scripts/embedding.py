@@ -12,20 +12,17 @@ import psycopg2
 from psycopg2.extras import execute_batch
 from pgvector.psycopg2 import register_vector
 
-# Import constants
-from constants import EMBEDDING_MODEL, DOCUMENTS_TABLE, ENV_KEY_OPENAI, ENV_KEY_DB
+from constants import DATABASE_URL, EMBEDDING_MODEL
 
 # ------------------ Setup ------------------
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
-OPENAI_API_KEY = os.getenv(ENV_KEY_OPENAI)
-DATABASE_URL = os.getenv(ENV_KEY_DB)
-
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
-    raise RuntimeError(f"{ENV_KEY_OPENAI} not set in environment or .env")
+    raise RuntimeError("OPENAI_API_KEY not set in environment or .env")
 if not DATABASE_URL:
-    raise RuntimeError(f"{ENV_KEY_DB} not set in environment or .env")
+    raise RuntimeError("DATABASE_URL_WEEK8 not set in environment or .env")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -52,16 +49,14 @@ def get_embeddings(texts: List[str]) -> List[List[float]]:
 
 
 def store_embeddings(pairs: List[Tuple[str, List[float]]]) -> None:
-    """Store (text, embedding) pairs into the database."""
+    """Store (text, embedding) pairs into the `documents` table."""
     logging.info("Storing %d embeddings in Postgres", len(pairs))
     with psycopg2.connect(DATABASE_URL) as conn:
         register_vector(conn)
         with conn.cursor() as cur:
-            insert_sql = (
-                f"INSERT INTO {DOCUMENTS_TABLE} (content, embedding) VALUES (%s, %s)"
-            )
+            insert_sql = "INSERT INTO documents (content, embedding) VALUES (%s, %s)"
             execute_batch(cur, insert_sql, pairs)
-    logging.info("Inserted %d rows into %s", len(pairs), DOCUMENTS_TABLE)
+    logging.info("Inserted %d rows into documents", len(pairs))
 
 
 def main() -> None:

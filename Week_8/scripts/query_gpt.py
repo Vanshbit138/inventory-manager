@@ -15,31 +15,21 @@ from openai import OpenAI
 import psycopg2
 from pgvector.psycopg2 import register_vector
 
-# Import constants
-from constants import (
-    CHAT_MODEL,
-    EMBEDDING_MODEL,
-    DOCUMENTS_TABLE,
-    ENV_KEY_OPENAI,
-    ENV_KEY_DB,
-)
+from constants import DATABASE_URL, EMBEDDING_MODEL, CHAT_MODEL, TOKEN_COST_PER_1K
 
-# ------------------ Setup ------------------
+# Load environment variables
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
-OPENAI_API_KEY = os.getenv(ENV_KEY_OPENAI)
-DATABASE_URL = os.getenv(ENV_KEY_DB)
-
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
-    raise RuntimeError(f"{ENV_KEY_OPENAI} is not set in environment or .env")
+    raise RuntimeError("OPENAI_API_KEY is not set in environment or .env")
 if not DATABASE_URL:
-    raise RuntimeError(f"{ENV_KEY_DB} is not set in environment or .env")
+    raise RuntimeError("DATABASE_URL_WEEK8 is not set in environment or .env")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 
-# ------------------ Functions ------------------
 def get_embedding(text: str) -> list[float]:
     """Generate embedding for a single text."""
     resp = client.embeddings.create(model=EMBEDDING_MODEL, input=[text])
@@ -47,16 +37,14 @@ def get_embedding(text: str) -> list[float]:
 
 
 def store_query(text: str, embedding: list[float]):
-    """Store a user query and its embedding in the database."""
-    try:
-        with psycopg2.connect(DATABASE_URL) as conn:
-            register_vector(conn)
-            with conn.cursor() as cur:
-                insert_sql = f"INSERT INTO {DOCUMENTS_TABLE} (content, embedding) VALUES (%s, %s)"
-                cur.execute(insert_sql, (text, embedding))
-        print(f" Stored query in DB: {text[:50]!r}")
-    except Exception as e:
-        print(" Database error:", e)
+    """Store a user query and its embedding in the `documents` table."""
+    with psycopg2.connect(DATABASE_URL) as conn:
+        register_vector(conn)
+        with conn.cursor() as cur:
+            insert_sql = "INSERT INTO documents (content, embedding) VALUES (%s, %s)"
+            cur.execute(insert_sql, (text, embedding))
+        conn.commit()
+    print(f" Stored query in DB: {text[:50]!r}")
 
 
 def ask_gpt(question: str, few_shot_example: bool = False) -> str:
@@ -81,7 +69,7 @@ def ask_gpt(question: str, few_shot_example: bool = False) -> str:
     usage = response.usage
     print("\nAnswer:\n", answer)
     print("\nTokens used:", usage.total_tokens)
-    print("Approx cost (USD):", round(usage.total_tokens * 0.002 / 1000, 6))
+    print("Approx cost (USD):", round(usage.total_tokens * TOKEN_COST_PER_1K / 1000, 6))
     return answer
 
 
@@ -95,11 +83,11 @@ def main():
 
         fs = input("Use few-shot example? (y/n): ").lower() == "y"
 
-        # Store the query
+        # 1️ Store the query embedding in DB
         embedding = get_embedding(question)
         store_query(question, embedding)
 
-        # Get GPT answer
+        # 2️ Ask GPT and show answer
         ask_gpt(question, few_shot_example=fs)
 
 

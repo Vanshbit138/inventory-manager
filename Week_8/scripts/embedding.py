@@ -1,16 +1,26 @@
 # scripts/embedding.py
 """
 Generate embeddings for a list of texts using OpenAI and store them in Postgres (pgvector).
+
+Responsibilities:
+- Prepare a list of example texts.
+- Generate embeddings using OpenAI.
+- Store embeddings in the Postgres database.
+
+SOLID Principles:
+- SRP: Each function has a single responsibility.
+- OCP: Can extend with new data sources or vector stores without modifying core logic.
 """
 
 import os
 import logging
 from typing import List, Tuple
-from dotenv import load_dotenv
-from openai import OpenAI
+
 import psycopg2
 from psycopg2.extras import execute_batch
 from pgvector.psycopg2 import register_vector
+from dotenv import load_dotenv
+from openai import OpenAI
 
 from constants import DATABASE_URL, EMBEDDING_MODEL
 
@@ -32,7 +42,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 
-# ------------------ Config ------------------
+# ------------------ Example Data ------------------
 SENTENCES: List[str] = [
     "Apples are a nutritious fruit with vitamins.",
     "Laptops are portable computers used for work and gaming.",
@@ -40,16 +50,29 @@ SENTENCES: List[str] = [
 ]
 
 
-# ------------------ Functions ------------------
+# ------------------ Core Functions ------------------
 def get_embeddings(texts: List[str]) -> List[List[float]]:
-    """Request embeddings for a list of texts from OpenAI."""
+    """
+    Generate embeddings for a list of texts using OpenAI.
+
+    Args:
+        texts (List[str]): Input texts.
+
+    Returns:
+        List[List[float]]: List of embedding vectors.
+    """
     logging.info("Requesting embeddings for %d texts", len(texts))
     resp = client.embeddings.create(model=EMBEDDING_MODEL, input=texts)
     return [item.embedding for item in resp.data]
 
 
 def store_embeddings(pairs: List[Tuple[str, List[float]]]) -> None:
-    """Store (text, embedding) pairs into the `documents` table."""
+    """
+    Store (text, embedding) pairs into the `documents` table.
+
+    Args:
+        pairs (List[Tuple[str, List[float]]]): List of (text, embedding) pairs.
+    """
     logging.info("Storing %d embeddings in Postgres", len(pairs))
     with psycopg2.connect(DATABASE_URL) as conn:
         register_vector(conn)
@@ -60,6 +83,12 @@ def store_embeddings(pairs: List[Tuple[str, List[float]]]) -> None:
 
 
 def main() -> None:
+    """
+    Main entry point:
+    - Generate embeddings for example sentences.
+    - Store them in Postgres.
+    - Log summary.
+    """
     embeddings = get_embeddings(SENTENCES)
     pairs = list(zip(SENTENCES, embeddings))
     store_embeddings(pairs)

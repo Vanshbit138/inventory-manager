@@ -17,5 +17,8 @@ DATABASE_URL = os.getenv("DATABASE_URL_WEEK8")
 EMBEDDING_MODEL = "text-embedding-3-small"
 CHAT_MODEL = "gpt-4o-mini"
 
+# Temperature for GPT responses
+CHAT_TEMPERATURE = 0.0
+
 # Cost estimation (tokens → USD) for reference
 TOKEN_COST_PER_1K = 0.002

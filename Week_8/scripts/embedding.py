@@ -6,13 +6,17 @@ Generate embeddings for a list of texts using OpenAI and store them in Postgres 
 import os
 import logging
 from typing import List, Tuple
-from dotenv import load_dotenv
-from openai import OpenAI
+
 import psycopg2
 from psycopg2.extras import execute_batch
 from pgvector.psycopg2 import register_vector
+from dotenv import load_dotenv
+
+load_dotenv()
+from openai import OpenAI
 
 from constants import DATABASE_URL, EMBEDDING_MODEL
+from embedded_sentences import EXAMPLE_SENTENCES
 
 # ------------------ Setup ------------------
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -32,36 +36,43 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 
-# ------------------ Config ------------------
-SENTENCES: List[str] = [
-    "Apples are a nutritious fruit with vitamins.",
-    "Laptops are portable computers used for work and gaming.",
-    "Harry Potter is a fantasy novel about a young wizard.",
-]
 
-
-# ------------------ Functions ------------------
+# ------------------ Core Functions ------------------
 def get_embeddings(texts: List[str]) -> List[List[float]]:
-    """Request embeddings for a list of texts from OpenAI."""
-    logging.info("Requesting embeddings for %d texts", len(texts))
-    resp = client.embeddings.create(model=EMBEDDING_MODEL, input=texts)
-    return [item.embedding for item in resp.data]
+    """Generate embeddings for a list of texts using OpenAI."""
+    try:
+        logging.info("Requesting embeddings for %d texts", len(texts))
+        resp = client.embeddings.create(model=EMBEDDING_MODEL, input=texts)
+        return [item.embedding for item in resp.data]
+    except Exception as e:
+        logging.error("Failed to generate embeddings: %s", str(e))
+        return []
 
 
 def store_embeddings(pairs: List[Tuple[str, List[float]]]) -> None:
     """Store (text, embedding) pairs into the `documents` table."""
-    logging.info("Storing %d embeddings in Postgres", len(pairs))
-    with psycopg2.connect(DATABASE_URL) as conn:
-        register_vector(conn)
-        with conn.cursor() as cur:
-            insert_sql = "INSERT INTO documents (content, embedding) VALUES (%s, %s)"
-            execute_batch(cur, insert_sql, pairs)
-    logging.info("Inserted %d rows into documents", len(pairs))
+    try:
+        logging.info("Storing %d embeddings in Postgres", len(pairs))
+        with psycopg2.connect(DATABASE_URL) as conn:
+            register_vector(conn)
+            with conn.cursor() as cur:
+                insert_sql = (
+                    "INSERT INTO documents (content, embedding) VALUES (%s, %s)"
+                )
+                execute_batch(cur, insert_sql, pairs)
+        logging.info("Inserted %d rows into documents", len(pairs))
+    except Exception as e:
+        logging.error("Failed to store embeddings: %s", str(e))
 
 
 def main() -> None:
-    embeddings = get_embeddings(SENTENCES)
-    pairs = list(zip(SENTENCES, embeddings))
+    """Main entry point."""
+    embeddings = get_embeddings(EXAMPLE_SENTENCES)
+    if not embeddings:
+        logging.error("No embeddings generated, aborting.")
+        return
+
+    pairs = list(zip(EXAMPLE_SENTENCES, embeddings))
     store_embeddings(pairs)
 
     for text, emb in pairs:

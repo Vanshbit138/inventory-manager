@@ -1,95 +1,121 @@
-# scripts/query_gpt.py
+# scripts/query_service.py
 """
-Interactive GPT query CLI:
-- Accepts user queries in a loop
-- Stores every query as an embedding in the database
-- Uses OpenAI embeddings + chat completion API
-- Exits only when the user types 'exit'
+LangChain GPT query service.
+
+Responsibilities:
+- Generate embeddings using OpenAI.
+- Query GPT using LangChain (zero-shot and few-shot).
+- Log token usage and approximate cost.
+
+SOLID Principles:
+- SRP: Embedding generation and GPT query kept separate.
+- OCP: Easy to extend with new prompts or models without modifying existing logic.
 """
 
 import os
+import logging
+from typing import List
+
 from dotenv import load_dotenv
 
 load_dotenv()
 from openai import OpenAI
-import psycopg2
-from pgvector.psycopg2 import register_vector
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema import StrOutputParser
 
-from constants import DATABASE_URL, EMBEDDING_MODEL, CHAT_MODEL, TOKEN_COST_PER_1K
+from constants import EMBEDDING_MODEL, CHAT_MODEL, CHAT_TEMPERATURE, TOKEN_COST_PER_1K
 
-# Load environment variables
+# ------------------ Environment ------------------
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise RuntimeError("OPENAI_API_KEY is not set in environment or .env")
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL_WEEK8 is not set in environment or .env")
 
+# OpenAI client (raw usage + embeddings)
 client = OpenAI(api_key=OPENAI_API_KEY)
 
+# LangChain chat model
+chat_model = ChatOpenAI(
+    model=CHAT_MODEL,
+    temperature=CHAT_TEMPERATURE,
+    api_key=OPENAI_API_KEY,
+)
+parser = StrOutputParser()
 
-def get_embedding(text: str) -> list[float]:
-    """Generate embedding for a single text."""
-    resp = client.embeddings.create(model=EMBEDDING_MODEL, input=[text])
-    return resp.data[0].embedding
+# ------------------ Prompts ------------------
+default_prompt = ChatPromptTemplate.from_messages([("user", "{question}")])
+
+few_shot_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", "You are a helpful assistant."),
+        (
+            "user",
+            "Translate the following English sentences to French:\n"
+            "Hello -> Bonjour\nGood morning -> Bonjour",
+        ),
+        ("user", "{question}"),
+    ]
+)
 
 
-def store_query(text: str, embedding: list[float]):
-    """Store a user query and its embedding in the `documents` table."""
-    with psycopg2.connect(DATABASE_URL) as conn:
-        register_vector(conn)
-        with conn.cursor() as cur:
-            insert_sql = "INSERT INTO documents (content, embedding) VALUES (%s, %s)"
-            cur.execute(insert_sql, (text, embedding))
-        conn.commit()
-    print(f" Stored query in DB: {text[:50]!r}")
+# ------------------ Core Functions ------------------
+def get_embedding(text: str) -> List[float]:
+    """
+    Generate an embedding for a given text using OpenAI.
+
+    Args:
+        text (str): Input text.
+
+    Returns:
+        List[float]: Embedding vector.
+    """
+    try:
+        resp = client.embeddings.create(model=EMBEDDING_MODEL, input=[text])
+        return resp.data[0].embedding
+    except Exception as e:
+        logging.error("Failed to generate embedding: %s", str(e))
+        return []
 
 
 def ask_gpt(question: str, few_shot_example: bool = False) -> str:
-    """Ask GPT a question and return the answer."""
-    if few_shot_example:
-        messages = [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {
-                "role": "user",
-                "content": "Translate the following English sentences to French:\nHello -> Bonjour\nGood morning -> Bonjour",
-            },
-            {"role": "user", "content": question},
-        ]
-    else:
-        messages = [{"role": "user", "content": question}]
+    """
+    Ask GPT a question using LangChain and return the answer.
+    Also logs tokens used and approximate cost.
 
-    response = client.chat.completions.create(
-        model=CHAT_MODEL, messages=messages, temperature=0
-    )
+    Args:
+        question (str): The user question.
+        few_shot_example (bool): Whether to use few-shot prompting.
 
-    answer = response.choices[0].message.content
-    usage = response.usage
-    print("\nAnswer:\n", answer)
-    print("\nTokens used:", usage.total_tokens)
-    print("Approx cost (USD):", round(usage.total_tokens * TOKEN_COST_PER_1K / 1000, 6))
-    return answer
+    Returns:
+        str: GPT response text.
+    """
+    if not question.strip():
+        logging.warning("Empty or whitespace-only question ignored.")
+        return "Error: Question cannot be empty."
 
+    try:
+        # Use LangChain for structured response
+        prompt = few_shot_prompt if few_shot_example else default_prompt
+        chain = prompt | chat_model | parser
+        answer = chain.invoke({"question": question})
 
-def main():
-    print("=== GPT CLI (type 'exit' to quit) ===\n")
-    while True:
-        question = input("Enter your question: ")
-        if question.strip().lower() == "exit":
-            print("Exiting CLI. Goodbye!")
-            break
+        # Direct OpenAI call (for usage tracking)
+        usage_resp = client.chat.completions.create(
+            model=CHAT_MODEL,
+            messages=[{"role": "user", "content": question}],
+            max_tokens=200,
+        )
+        tokens_used = usage_resp.usage.total_tokens
+        approx_cost = (tokens_used / 1000) * TOKEN_COST_PER_1K
 
-        fs = input("Use few-shot example? (y/n): ").lower() == "y"
+        logging.info("Tokens used: %d", tokens_used)
+        logging.info("Approx cost (USD): $%.6f", approx_cost)
 
-        # 1️ Store the query embedding in DB
-        embedding = get_embedding(question)
-        store_query(question, embedding)
+        return answer
 
-        # 2️ Ask GPT and show answer
-        ask_gpt(question, few_shot_example=fs)
-
-
-if __name__ == "__main__":
-    main()
+    except Exception as e:
+        logging.error("GPT query failed: %s", str(e))
+        return "Error: Could not get response from GPT."

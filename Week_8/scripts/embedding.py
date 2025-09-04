@@ -11,9 +11,12 @@ import psycopg2
 from psycopg2.extras import execute_batch
 from pgvector.psycopg2 import register_vector
 from dotenv import load_dotenv
+
+load_dotenv()
 from openai import OpenAI
 
 from constants import DATABASE_URL, EMBEDDING_MODEL
+from embedded_sentences import EXAMPLE_SENTENCES
 
 # ------------------ Setup ------------------
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -32,13 +35,6 @@ logging.basicConfig(
     format="[%(asctime)s] %(levelname)s - %(message)s",
     datefmt="%H:%M:%S",
 )
-
-# ------------------ Example Data ------------------
-SENTENCES: List[str] = [
-    "Apples are a nutritious fruit with vitamins.",
-    "Laptops are portable computers used for work and gaming.",
-    "Harry Potter is a fantasy novel about a young wizard.",
-]
 
 
 # ------------------ Core Functions ------------------
@@ -71,12 +67,12 @@ def store_embeddings(pairs: List[Tuple[str, List[float]]]) -> None:
 
 def main() -> None:
     """Main entry point."""
-    embeddings = get_embeddings(SENTENCES)
+    embeddings = get_embeddings(EXAMPLE_SENTENCES)
     if not embeddings:
         logging.error("No embeddings generated, aborting.")
         return
 
-    pairs = list(zip(SENTENCES, embeddings))
+    pairs = list(zip(EXAMPLE_SENTENCES, embeddings))
     store_embeddings(pairs)
 
     for text, emb in pairs:

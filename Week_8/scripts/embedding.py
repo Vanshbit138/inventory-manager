@@ -1,15 +1,6 @@
 # scripts/embedding.py
 """
 Generate embeddings for a list of texts using OpenAI and store them in Postgres (pgvector).
-
-Responsibilities:
-- Prepare a list of example texts.
-- Generate embeddings using OpenAI.
-- Store embeddings in the Postgres database.
-
-SOLID Principles:
-- SRP: Each function has a single responsibility.
-- OCP: Can extend with new data sources or vector stores without modifying core logic.
 """
 
 import os
@@ -52,44 +43,39 @@ SENTENCES: List[str] = [
 
 # ------------------ Core Functions ------------------
 def get_embeddings(texts: List[str]) -> List[List[float]]:
-    """
-    Generate embeddings for a list of texts using OpenAI.
-
-    Args:
-        texts (List[str]): Input texts.
-
-    Returns:
-        List[List[float]]: List of embedding vectors.
-    """
-    logging.info("Requesting embeddings for %d texts", len(texts))
-    resp = client.embeddings.create(model=EMBEDDING_MODEL, input=texts)
-    return [item.embedding for item in resp.data]
+    """Generate embeddings for a list of texts using OpenAI."""
+    try:
+        logging.info("Requesting embeddings for %d texts", len(texts))
+        resp = client.embeddings.create(model=EMBEDDING_MODEL, input=texts)
+        return [item.embedding for item in resp.data]
+    except Exception as e:
+        logging.error("Failed to generate embeddings: %s", str(e))
+        return []
 
 
 def store_embeddings(pairs: List[Tuple[str, List[float]]]) -> None:
-    """
-    Store (text, embedding) pairs into the `documents` table.
-
-    Args:
-        pairs (List[Tuple[str, List[float]]]): List of (text, embedding) pairs.
-    """
-    logging.info("Storing %d embeddings in Postgres", len(pairs))
-    with psycopg2.connect(DATABASE_URL) as conn:
-        register_vector(conn)
-        with conn.cursor() as cur:
-            insert_sql = "INSERT INTO documents (content, embedding) VALUES (%s, %s)"
-            execute_batch(cur, insert_sql, pairs)
-    logging.info("Inserted %d rows into documents", len(pairs))
+    """Store (text, embedding) pairs into the `documents` table."""
+    try:
+        logging.info("Storing %d embeddings in Postgres", len(pairs))
+        with psycopg2.connect(DATABASE_URL) as conn:
+            register_vector(conn)
+            with conn.cursor() as cur:
+                insert_sql = (
+                    "INSERT INTO documents (content, embedding) VALUES (%s, %s)"
+                )
+                execute_batch(cur, insert_sql, pairs)
+        logging.info("Inserted %d rows into documents", len(pairs))
+    except Exception as e:
+        logging.error("Failed to store embeddings: %s", str(e))
 
 
 def main() -> None:
-    """
-    Main entry point:
-    - Generate embeddings for example sentences.
-    - Store them in Postgres.
-    - Log summary.
-    """
+    """Main entry point."""
     embeddings = get_embeddings(SENTENCES)
+    if not embeddings:
+        logging.error("No embeddings generated, aborting.")
+        return
+
     pairs = list(zip(SENTENCES, embeddings))
     store_embeddings(pairs)
 

@@ -1,83 +1,98 @@
-# scripts/embedding.py
+# scripts/ingest_embeddings.py
 """
-Generate embeddings for a list of texts using OpenAI and store them in Postgres (pgvector).
+Generate embeddings for product data and store them in PGVector.
+Skips creation if embeddings already exist in the database.
 """
 
-import os
 import logging
-from typing import List, Tuple
-
-import psycopg2
-from psycopg2.extras import execute_batch
-from pgvector.psycopg2 import register_vector
+import os
+from typing import List, Dict
 from dotenv import load_dotenv
 
+from langchain_openai import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores.pgvector import PGVector
+from langchain_core.documents import Document
+
+from data_loader import load_products
+from constants import EMBEDDING_MODEL, CHUNK_SIZE, CHUNK_OVERLAP
+
+# ---------------- Setup ----------------
 load_dotenv()
-from openai import OpenAI
-
-from constants import DATABASE_URL, EMBEDDING_MODEL
-from embedded_sentences import EXAMPLE_SENTENCES
-
-# ------------------ Setup ------------------
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise RuntimeError("OPENAI_API_KEY not set in environment or .env")
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL_WEEK8 not set in environment or .env")
-
-client = OpenAI(api_key=OPENAI_API_KEY)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] %(levelname)s - %(message)s",
-    datefmt="%H:%M:%S",
-)
 
 
-# ------------------ Core Functions ------------------
-def get_embeddings(texts: List[str]) -> List[List[float]]:
-    """Generate embeddings for a list of texts using OpenAI."""
+def embed_and_store(
+    products: List[Dict], collection_name: str = "product_embeddings"
+) -> PGVector:
+    """
+    Generate embeddings for product data and store them in PGVector.
+    If embeddings already exist in the collection, skip creation.
+    """
+    db_url = os.getenv("DATABASE_URL_WEEK8")
+    if not db_url:
+        raise ValueError("DATABASE_URL_WEEK8 not found in environment variables")
+
+    logger.info("Initializing OpenAI embeddings...")
+    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL, openai_api_key=OPENAI_API_KEY)
+
+    # ---------------- Check if embeddings already exist ----------------
+    vector_store = PGVector(
+        collection_name=collection_name,
+        connection_string=db_url,
+        embedding_function=embeddings,
+    )
+
     try:
-        logging.info("Requesting embeddings for %d texts", len(texts))
-        resp = client.embeddings.create(model=EMBEDDING_MODEL, input=texts)
-        return [item.embedding for item in resp.data]
-    except Exception as e:
-        logging.error("Failed to generate embeddings: %s", str(e))
-        return []
+        existing_docs = vector_store.similarity_search("test", k=1)
+        if existing_docs:
+            logger.info(
+                "Embeddings already exist in collection '%s'. Skipping creation.",
+                collection_name,
+            )
+            return vector_store
+    except Exception:
+        logger.info("No existing embeddings found. Creating new ones...")
 
+    # ---------------- Create new embeddings ----------------
+    logger.info("Splitting product data into chunks...")
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=CHUNK_SIZE,
+        chunk_overlap=CHUNK_OVERLAP,
+    )
 
-def store_embeddings(pairs: List[Tuple[str, List[float]]]) -> None:
-    """Store (text, embedding) pairs into the `documents` table."""
-    try:
-        logging.info("Storing %d embeddings in Postgres", len(pairs))
-        with psycopg2.connect(DATABASE_URL) as conn:
-            register_vector(conn)
-            with conn.cursor() as cur:
-                insert_sql = (
-                    "INSERT INTO documents (content, embedding) VALUES (%s, %s)"
+    documents: List[Document] = []
+    for product in products:
+        content = f"{product['name']}\n{product['description']}"
+        chunks = text_splitter.split_text(content)
+        for idx, chunk in enumerate(chunks):
+            documents.append(
+                Document(
+                    page_content=chunk,
+                    metadata={"product_id": product["product_id"], "chunk_index": idx},
                 )
-                execute_batch(cur, insert_sql, pairs)
-        logging.info("Inserted %d rows into documents", len(pairs))
-    except Exception as e:
-        logging.error("Failed to store embeddings: %s", str(e))
+            )
 
+    logger.info(f"Generated {len(documents)} chunks for embedding.")
 
-def main() -> None:
-    """Main entry point."""
-    embeddings = get_embeddings(EXAMPLE_SENTENCES)
-    if not embeddings:
-        logging.error("No embeddings generated, aborting.")
-        return
+    logger.info("Storing embeddings in PGVector...")
+    vector_store = PGVector.from_documents(
+        documents=documents,
+        embedding=embeddings,
+        connection_string=db_url,
+        collection_name=collection_name,
+    )
 
-    pairs = list(zip(EXAMPLE_SENTENCES, embeddings))
-    store_embeddings(pairs)
-
-    for text, emb in pairs:
-        logging.info("Stored: %-50s embedding_len=%d", text[:50], len(emb))
+    logger.info("Embeddings successfully stored in PGVector.")
+    return vector_store
 
 
 if __name__ == "__main__":
-    main()
+    logger.info("Loading products to embed...")
+    products = load_products()
+    embed_and_store(products)

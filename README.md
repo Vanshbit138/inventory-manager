@@ -40,6 +40,7 @@ inventory-manager/
 ├── Week_4/                     # Comprehensive test suite
 ├── Week_5/                     # API implementation
 ├── Week_6_and7/                # Comprehensive test suite and user authentication
+├── Week_8/                     # LLMs, Embeddings, and Retrieval-Augmented Generation (RAG)
 ├── docs/                       # Detailed documentation
 ├── .gitignore                  # Git ignore rules for virtual environments, __pycache__, etc.
 ├── .pre-commit-config.yaml     # Pre-commit hooks configuration for code quality checks

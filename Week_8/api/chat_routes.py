@@ -1,11 +1,14 @@
 # api/chat_routes.py
 from flask import Blueprint, request, jsonify
 from scripts.rag_chain import answer_question
+from .security.decorators import jwt_required, roles_required
 
 chat_bp = Blueprint("chat", __name__, url_prefix="/chat")
 
 
 @chat_bp.route("/inventory", methods=["POST"])
+@jwt_required
+@roles_required("admin", "manager")
 def chat_inventory():
     """Chat endpoint: takes a question, returns an LLM-generated answer."""
     data = request.get_json()
@@ -13,6 +16,7 @@ def chat_inventory():
         return jsonify({"error": "Missing 'question' field in request body"}), 400
 
     question = data["question"]
+
     try:
         answer = answer_question(question)
         return jsonify({"question": question, "answer": answer}), 200

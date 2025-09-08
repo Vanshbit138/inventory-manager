@@ -162,7 +162,32 @@ inventory-manager/
 │   └── products.csv
 ├── .env.example          
 ├── README.md               
-└── requirements.txt        
+└── requirements.txt  
+└──Week_8/
+├── api/             
+│   ├── app.py    
+│   ├── chat_routes.py 
+│   ├── config.py   
+│   ├── db.py       
+│   ├── __init__.py      
+│   ├── models.py    
+│   ├── routes.py        
+│   ├── schemas/          
+│   ├── security/             
+│   └── seed.py             
+├── data/
+│   └── products.csv   
+├── migrations/            
+├── requirements.txt   
+└── prompts/                
+    ├── system_prompts.py   
+└── scripts/                
+    ├── constants.py       
+    ├── data_loader.py   
+    ├── rag_chain.py
+    ├── embedding.py    
+    ├── storage.py      
+    └── query_gpt.py       
 
 ```
 

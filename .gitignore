@@ -23,3 +23,4 @@ pytestdebug.log
 .coverage
 .ruff_cache
 .flaskenv
+script.py.mako

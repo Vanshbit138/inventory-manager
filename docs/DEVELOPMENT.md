@@ -344,6 +344,43 @@ API route testing with pytest
 Coverage improved to ~98%
 
 
+### Week 8 – LLMs, Embeddings, and Retrieval-Augmented Generation (RAG)
+
+**Overview**
+
+This week marks the transition from traditional software engineering to the AI stack.
+The goal was to understand Large Language Models (LLMs), embeddings, and the Retrieval-Augmented Generation (RAG) pattern — and finally, to build an Inventory Chatbot API that allows natural language queries on product data stored in a PostgreSQL database with pgvector.
+
+## Project Structure
+```
+Week_8/
+├── api/                      # Flask application
+│   ├── app.py                # App entrypoint
+│   ├── chat_routes.py        # Chat (RAG) blueprint and endpoint
+│   ├── config.py             # App config (loads .env values)
+│   ├── db.py                 # SQLAlchemy setup
+│   ├── __init__.py           # App factory, blueprint registration
+│   ├── models.py             # SQLAlchemy models
+│   ├── routes.py             # Product routes (CRUD)
+│   ├── schemas/              # Pydantic request/response validation
+│   ├── security/             # Auth (JWT, password hashing, decorators)
+│   └── seed.py               # DB seeding
+├── data/
+│   └── products.csv          # Sample product data
+├── migrations/               # Alembic migration files
+├── requirements.txt          # Python dependencies
+└── prompts/                  # Prompts for RAG and embeddings
+    ├── system_prompts.py         
+└── scripts/                  # Utility scripts for RAG and embeddings
+    ├── constants.py          # Constants (models, chunk sizes, etc.)
+    ├── data_loader.py        # Load products from DB
+    ├── rag_chain.py          # RAG pipeline (retriever → prompt → LLM)
+    ├── embedding.py          # Embedding generation
+    ├── storage.py            # PGVector integration
+    └── query_gpt.py          # Direct LLM query helper
+
+```
+
 ##  Next Steps & Potential Enhancements
 
 ### Advanced Features

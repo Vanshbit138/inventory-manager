@@ -22,6 +22,8 @@ Week_8/
 │   └── products.csv          # Sample product data
 ├── migrations/               # Alembic migration files
 ├── requirements.txt          # Python dependencies
+└── prompts/                  # Prompts for RAG and embeddings
+    ├── system_prompts.py         
 └── scripts/                  # Utility scripts for RAG and embeddings
     ├── constants.py          # Constants (models, chunk sizes, etc.)
     ├── data_loader.py        # Load products from DB

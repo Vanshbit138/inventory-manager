@@ -12,6 +12,7 @@ from flask_migrate import Migrate
 from .config import Config
 from .db import db
 from .routes import products_bp
+from .chat_routes import chat_bp  # ✅ Import chat blueprint
 
 migrate = Migrate()
 
@@ -25,8 +26,9 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Register routes
+    # Register blueprints
     app.register_blueprint(products_bp, url_prefix="/products")
+    app.register_blueprint(chat_bp, url_prefix="/chat")  # ✅ Register chat
 
     # Register auth blueprint
     from .security.auth import auth_bp

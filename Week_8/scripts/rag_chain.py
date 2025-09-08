@@ -1,14 +1,13 @@
 # scripts/rag_chain.py
-"""
-RAG pipeline using your existing product_embeddings table.
-1. Load embeddings from PGVector.
-2. Retrieve relevant product chunks.
-3. Pass context + question to ChatOpenAI.
-4. Generate answer.
-"""
 
 import logging
 import os
+import sys
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores.pgvector import PGVector
@@ -16,7 +15,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain.schema import StrOutputParser
 
-from constants import CHAT_MODEL, CHAT_TEMPERATURE, EMBEDDING_MODEL
+from scripts.constants import CHAT_MODEL, CHAT_TEMPERATURE, EMBEDDING_MODEL
+from prompts.system_prompt import SYSTEM_PROMPT
 
 # ---------------- Setup ----------------
 load_dotenv()
@@ -29,36 +29,28 @@ if not OPENAI_API_KEY:
 
 
 def load_vector_store(collection_name: str = "product_embeddings") -> PGVector:
-    """
-    Load existing PGVector embeddings from the database.
-    """
+    """Load existing PGVector embeddings from the database."""
     db_url = os.getenv("DATABASE_URL_WEEK8")
     if not db_url:
         raise ValueError("DATABASE_URL_WEEK8 not found in environment variables")
 
-    logger.info(f"Loading vector store from collection '{collection_name}'...")
     embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL, openai_api_key=OPENAI_API_KEY)
 
     vector_store = PGVector(
         collection_name=collection_name,
         connection_string=db_url,
-        embedding_function=embeddings,  # Required for similarity search
+        embedding_function=embeddings,
     )
     return vector_store
 
 
 def build_rag_chain(vector_store: PGVector):
-    """
-    Build a simple RAG pipeline: retriever → prompt → LLM → output parser
-    """
+    """Build a simple RAG pipeline: retriever → prompt → LLM → output parser"""
     retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            (
-                "system",
-                "You are a helpful assistant. Use the provided product context to answer the user's question.",
-            ),
+            ("system", SYSTEM_PROMPT),  # Use system prompt from file
             ("human", "Context:\n{context}\n\nQuestion: {question}"),
         ]
     )
@@ -74,32 +66,20 @@ def build_rag_chain(vector_store: PGVector):
     return chain
 
 
-def main():
-    logger.info("Loading existing embeddings from vector DB...")
-    vector_store = load_vector_store()
-
-    logger.info("Building RAG chain...")
-    rag_chain = build_rag_chain(vector_store)
-
-    # Loop for user input
-    while True:
-        question = input("\nAsk a question about products (or 'exit'): ")
-        if question.lower() in {"exit", "quit"}:
-            break
-
-        # Retrieve relevant documents
-        docs = vector_store.as_retriever().invoke(question)
-        if docs:
-            print("\n[DEBUG] Retrieved Chunks:")
-            for d in docs:
-                print("-", d.page_content)
-        else:
-            print("\n[DEBUG] No chunks retrieved.")
-
-        # Run RAG chain
-        answer = rag_chain.invoke(question)
-        print("\nA:", answer)
+# Initialize globally (Flask can reuse this)
+_vector_store = load_vector_store()
+_rag_chain = build_rag_chain(_vector_store)
 
 
+def answer_question(question: str) -> str:
+    """Public function Flask will call to answer user queries."""
+    return _rag_chain.invoke(question)
+
+
+# For CLI testing
 if __name__ == "__main__":
-    main()
+    while True:
+        q = input("Ask a question (or 'exit'): ")
+        if q.lower() in {"exit", "quit"}:
+            break
+        print("A:", answer_question(q))

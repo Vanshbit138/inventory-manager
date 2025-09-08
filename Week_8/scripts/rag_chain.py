@@ -7,6 +7,7 @@ import sys
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
+
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores.pgvector import PGVector
@@ -15,6 +16,7 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain.schema import StrOutputParser
 
 from scripts.constants import CHAT_MODEL, CHAT_TEMPERATURE, EMBEDDING_MODEL
+from prompts.system_prompt import SYSTEM_PROMPT
 
 # ---------------- Setup ----------------
 load_dotenv()
@@ -48,10 +50,7 @@ def build_rag_chain(vector_store: PGVector):
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            (
-                "system",
-                "You are a helpful assistant. Use the provided product context to answer the user's question.",
-            ),
+            ("system", SYSTEM_PROMPT),  # Use system prompt from file
             ("human", "Context:\n{context}\n\nQuestion: {question}"),
         ]
     )

@@ -179,6 +179,8 @@ inventory-manager/
 │   └── products.csv   
 ├── migrations/            
 ├── requirements.txt   
+└── prompts/                
+    ├── system_prompts.py   
 └── scripts/                
     ├── constants.py       
     ├── data_loader.py   

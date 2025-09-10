@@ -14,3 +14,7 @@ psycopg2-binary>=2.9       # you already use this in scripts; ok to keep both
 pgvector>=0.3
 
 SQLAlchemy>=2.0            # sometimes required by langchain-postgres
+
+# Hugging Face embeddings
+torch
+sentence-transformers

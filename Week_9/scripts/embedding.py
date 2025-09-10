@@ -1,4 +1,3 @@
-# scripts/ingest_embeddings.py
 """
 Generate embeddings for product data and store them in PGVector.
 Skips creation if embeddings already exist in the database.
@@ -9,37 +8,35 @@ import os
 from typing import List, Dict
 from dotenv import load_dotenv
 
-from langchain_openai import OpenAIEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores.pgvector import PGVector
 from langchain_core.documents import Document
 
 from data_loader import load_products
-from constants import EMBEDDING_MODEL, CHUNK_SIZE, CHUNK_OVERLAP
+from constants import CHUNK_SIZE, CHUNK_OVERLAP
 
 # ---------------- Setup ----------------
 load_dotenv()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-if not OPENAI_API_KEY:
-    raise RuntimeError("OPENAI_API_KEY not set in environment or .env")
-
 
 def embed_and_store(
-    products: List[Dict], collection_name: str = "product_embeddings"
+    products: List[Dict], collection_name: str = "product_embeddings_hf"
 ) -> PGVector:
     """
-    Generate embeddings for product data and store them in PGVector.
+    Generate embeddings for product data using HuggingFace and store in PGVector.
     If embeddings already exist in the collection, skip creation.
     """
     db_url = os.getenv("DATABASE_URL_WEEK8")
     if not db_url:
         raise ValueError("DATABASE_URL_WEEK8 not found in environment variables")
 
-    logger.info("Initializing OpenAI embeddings...")
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL, openai_api_key=OPENAI_API_KEY)
+    logger.info("Initializing HuggingFace embeddings...")
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
 
     # ---------------- Check if embeddings already exist ----------------
     vector_store = PGVector(

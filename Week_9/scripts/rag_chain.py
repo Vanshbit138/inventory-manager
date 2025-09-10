@@ -8,13 +8,17 @@ if BASE_DIR not in sys.path:
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores.pgvector import PGVector
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain.schema import StrOutputParser
 
-from scripts.constants import CHAT_MODEL, CHAT_TEMPERATURE
+from scripts.constants import (
+    CHAT_MODEL,
+    CHAT_TEMPERATURE,
+    HF_EMBEDDINGS,
+    DATABASE_URL_WEEK8,
+)
 from prompts.system_prompt import SYSTEM_PROMPT
 from scripts.llm_cache import SQLAlchemyCache
 
@@ -26,18 +30,13 @@ logging.basicConfig(level=logging.INFO)
 
 def load_vector_store(collection_name: str = "product_embeddings_hf") -> PGVector:
     """Load existing PGVector embeddings (HuggingFace) from the database."""
-    db_url = os.getenv("DATABASE_URL_WEEK8")
-    if not db_url:
+    if not DATABASE_URL_WEEK8:
         raise ValueError("DATABASE_URL_WEEK8 not found in environment variables")
-
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
 
     vector_store = PGVector(
         collection_name=collection_name,
-        connection_string=db_url,
-        embedding_function=embeddings,
+        connection_string=DATABASE_URL_WEEK8,
+        embedding_function=HF_EMBEDDINGS,
     )
     return vector_store
 
@@ -80,7 +79,6 @@ def answer_question(question: str) -> str:
             logger.info(f"[CACHE HIT] Question found in cache: {question}")
             return cached_answer
     except RuntimeError:
-        # Flask app context not available → skip cache
         logger.info(
             f"[CACHE SKIP] Running outside Flask context for question: {question}"
         )

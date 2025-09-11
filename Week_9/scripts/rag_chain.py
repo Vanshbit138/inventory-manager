@@ -7,20 +7,21 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores.pgvector import PGVector
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain.schema import StrOutputParser
+from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 
 from scripts.constants import (
-    CHAT_MODEL,
-    CHAT_TEMPERATURE,
     HF_EMBEDDINGS,
     DATABASE_URL_WEEK8,
+    CHAT_MODEL_OPENAI,
+    CHAT_MODEL_OLLAMA,
+    CHAT_TEMPERATURE,
 )
 from prompts.system_prompt import SYSTEM_PROMPT
-from scripts.llm_cache import SQLAlchemyCache
 
 # ---------------- Setup ----------------
 load_dotenv()
@@ -33,16 +34,22 @@ def load_vector_store(collection_name: str = "product_embeddings_hf") -> PGVecto
     if not DATABASE_URL_WEEK8:
         raise ValueError("DATABASE_URL_WEEK8 not found in environment variables")
 
-    vector_store = PGVector(
+    return PGVector(
         collection_name=collection_name,
         connection_string=DATABASE_URL_WEEK8,
         embedding_function=HF_EMBEDDINGS,
     )
-    return vector_store
 
 
-def build_rag_chain(vector_store: PGVector):
-    """Build a simple RAG pipeline: retriever → prompt → LLM → output parser"""
+def get_llm(use_ollama: bool = False):
+    """Return the appropriate LLM instance (OpenAI or Ollama)."""
+    if use_ollama:
+        return ChatOllama(model=CHAT_MODEL_OLLAMA, temperature=CHAT_TEMPERATURE)
+    return ChatOpenAI(model=CHAT_MODEL_OPENAI, temperature=CHAT_TEMPERATURE)
+
+
+def build_rag_chain(vector_store: PGVector, llm) -> object:
+    """Build a RAG pipeline with the specified LLM."""
     retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 
     prompt = ChatPromptTemplate.from_messages(
@@ -51,8 +58,6 @@ def build_rag_chain(vector_store: PGVector):
             ("human", "Context:\n{context}\n\nQuestion: {question}"),
         ]
     )
-
-    llm = ChatOpenAI(model=CHAT_MODEL, temperature=CHAT_TEMPERATURE)
 
     chain = (
         {"context": retriever, "question": RunnablePassthrough()}
@@ -63,43 +68,36 @@ def build_rag_chain(vector_store: PGVector):
     return chain
 
 
-# Initialize globally (Flask can reuse this)
+# Initialize vector store globally (default → OpenAI)
 _vector_store = load_vector_store()
-_rag_chain = build_rag_chain(_vector_store)
 
 
-def answer_question(question: str) -> str:
-    """
-    Return answer from cache if available, otherwise generate via RAG chain.
-    Skips cache if Flask app context is not available (for CLI testing).
-    """
+def answer_question(question: str, llm) -> str:
+    """Answer from cache if available, else generate via RAG chain (OpenAI or Ollama)."""
     try:
-        cached_answer = SQLAlchemyCache.get(question)
-        if cached_answer:
-            logger.info(f"[CACHE HIT] Question found in cache: {question}")
-            return cached_answer
-    except RuntimeError:
-        logger.info(
-            f"[CACHE SKIP] Running outside Flask context for question: {question}"
-        )
+        from scripts.llm_cache import SQLAlchemyCache
+    except ImportError:
+        SQLAlchemyCache = None
 
-    answer = _rag_chain.invoke(question)
-
+    # Single try/except for cache operations
     try:
-        SQLAlchemyCache.set(question, answer)
-        logger.info(f"[CACHE SET] Storing answer for question: {question}")
-    except RuntimeError:
-        logger.info(
-            f"[CACHE SKIP] Could not store cache outside Flask context for question: {question}"
-        )
+        if SQLAlchemyCache:
+            cached_answer = SQLAlchemyCache.get(question)
+            if cached_answer:
+                logger.info(f"[CACHE HIT] Question found in cache: {question}")
+                return cached_answer
 
-    return answer
+        # Otherwise fetch new answer
+        rag_chain = build_rag_chain(_vector_store, llm)
+        answer = rag_chain.invoke(question)
 
+        if SQLAlchemyCache:
+            SQLAlchemyCache.set(question, answer)
+            logger.info(f"[CACHE SET] Storing answer for question: {question}")
 
-# For CLI testing
-if __name__ == "__main__":
-    while True:
-        q = input("Ask a question (or 'exit'): ")
-        if q.lower() in {"exit", "quit"}:
-            break
-        print("A:", answer_question(q))
+        return answer
+
+    except Exception as e:
+        logger.warning(f"[CACHE ERROR] {e} — proceeding without cache")
+        rag_chain = build_rag_chain(_vector_store, llm)
+        return rag_chain.invoke(question)

@@ -1,7 +1,5 @@
-# Week_6_and_7/api/chat_routes.py
-
 from flask import Blueprint, request, jsonify
-from scripts.rag_chain import answer_question
+from scripts.rag_chain import answer_question, get_llm
 
 chat_bp = Blueprint("chat", __name__, url_prefix="/chat")
 
@@ -16,7 +14,8 @@ def chat_inventory() -> tuple:
     question = data["question"]
     use_ollama = data.get("use_ollama", False)  # default → OpenAI
 
-    answer = answer_question(question, use_ollama=use_ollama)
+    llm = get_llm(use_ollama=use_ollama)
+    answer = answer_question(question, llm)
 
     model_used = "ollama-llama3" if use_ollama else "openai-gpt-4o-mini"
 

@@ -1,6 +1,7 @@
 """
 Generate embeddings for product data and store them in PGVector.
 Skips creation if embeddings already exist in the database.
+Supports multi-tenancy via user_id metadata.
 """
 
 import logging
@@ -23,11 +24,18 @@ logging.basicConfig(level=logging.INFO)
 
 
 def embed_and_store(
-    products: List[Dict], collection_name: str = "product_embeddings_hf"
+    products: List[Dict],
+    collection_name: str = "product_embeddings_hf",
+    user_id: int = 1,
 ) -> PGVector:
     """
     Generate embeddings for product data using HuggingFace and store in PGVector.
     If embeddings already exist in the collection, skip creation.
+
+    Args:
+        products: List of product dicts with 'name', 'description', 'product_id'.
+        collection_name: Name of the PGVector collection.
+        user_id: Multi-tenant user_id to attach to each document.
     """
     db_url = os.getenv("DATABASE_URL_WEEK8")
     if not db_url:
@@ -71,7 +79,11 @@ def embed_and_store(
             documents.append(
                 Document(
                     page_content=chunk,
-                    metadata={"product_id": product["product_id"], "chunk_index": idx},
+                    metadata={
+                        "product_id": product["product_id"],
+                        "chunk_index": idx,
+                        "user_id": user_id,  # <-- attach user_id for multi-tenancy
+                    },
                 )
             )
 
@@ -92,4 +104,5 @@ def embed_and_store(
 if __name__ == "__main__":
     logger.info("Loading products to embed...")
     products = load_products()
-    embed_and_store(products)
+    # default user_id=1 for local/test run; can be parameterized as needed
+    embed_and_store(products, user_id=1)

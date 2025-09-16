@@ -10,15 +10,6 @@ class Product(db.Model):
     """
     Base SQLAlchemy model for a product in the inventory.
     Implements single-table inheritance for different product categories.
-
-    Attributes:
-        product_id (int): Primary key, unique identifier for the product.
-        name (str): Name of the product.
-        quantity (int): Stock quantity available.
-        price (float): Price of the product.
-        type (str): Product category (food, electronic, book, etc.).
-        owner_id (int): Foreign key to the user who owns this product.
-        owner (User): Relationship to the User model.
     """
 
     __tablename__ = "products"
@@ -45,62 +36,30 @@ class Product(db.Model):
 
 
 class FoodProduct(Product):
-    """
-    Product type: Food (with expiry date).
-
-    Attributes:
-        expiry_date (date): Expiration date of the food item.
-    """
+    """Product type: Food (with expiry date)."""
 
     expiry_date: date = db.Column(db.Date, nullable=True)
-
-    __mapper_args__ = {
-        "polymorphic_identity": "food",
-    }
+    __mapper_args__ = {"polymorphic_identity": "food"}
 
 
 class ElectronicProduct(Product):
-    """
-    Product type: Electronic (with warranty period).
-
-    Attributes:
-        warranty_period (int): Warranty period in months.
-    """
+    """Product type: Electronic (with warranty period)."""
 
     warranty_period: int = db.Column(db.Integer, nullable=True)
-
-    __mapper_args__ = {
-        "polymorphic_identity": "electronic",
-    }
+    __mapper_args__ = {"polymorphic_identity": "electronic"}
 
 
 class BookProduct(Product):
-    """
-    Product type: Book (with author and pages).
-
-    Attributes:
-        author (str): Author of the book.
-        pages (int): Number of pages in the book.
-    """
+    """Product type: Book (with author and pages)."""
 
     author: str = db.Column(db.String(100), nullable=True)
     pages: int = db.Column(db.Integer, nullable=True)
-
-    __mapper_args__ = {
-        "polymorphic_identity": "book",
-    }
+    __mapper_args__ = {"polymorphic_identity": "book"}
 
 
 class User(db.Model):
     """
     User model for authentication and RBAC.
-
-    Attributes:
-        id (int): Primary key.
-        username (str): Unique username for login.
-        password_hash (str): Hashed password for authentication.
-        role (str): Role of the user (admin, manager, viewer).
-        products (list[Product]): List of products owned by the user.
     """
 
     __tablename__ = "users"
@@ -109,8 +68,12 @@ class User(db.Model):
     username: str = db.Column(db.String(80), unique=True, nullable=False)
     password_hash: str = db.Column(db.String(200), nullable=False)
     role: str = db.Column(db.String(20), nullable=False, default="viewer")
+
     products = db.relationship(
         "Product", back_populates="owner", cascade="all, delete-orphan"
+    )
+    documents = db.relationship(
+        "Document", back_populates="owner", cascade="all, delete-orphan"
     )
 
     def set_password(self, password: str) -> None:
@@ -128,11 +91,6 @@ class User(db.Model):
 class Document(db.Model):
     """
     Document model for storing embeddings using pgvector.
-
-    Attributes:
-        id (int): Primary key.
-        content (str): Raw text content of the document.
-        embedding (Vector): Vector representation (embedding) of the content.
     """
 
     __tablename__ = "documents"
@@ -141,19 +99,17 @@ class Document(db.Model):
     content: str = db.Column(db.Text, nullable=False)
     embedding = db.Column(Vector(1536))  # OpenAI text-embedding-3-small
 
+    # NEW: Associate each document with a user for multi-tenancy
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    owner = db.relationship("User", back_populates="documents")
+
     def __repr__(self) -> str:
-        return f"<Document id={self.id} content={self.content[:30]}...>"
+        return f"<Document id={self.id} user_id={self.user_id} content={self.content[:30]}...>"
 
 
 class LLMCache(db.Model):
     """
     Cache table for storing LLM requests and responses.
-
-    Attributes:
-        id (int): Primary key.
-        question (str): The input prompt/question.
-        answer (str): The generated response from the LLM.
-        created_at (datetime): Timestamp when cached.
     """
 
     __tablename__ = "llm_cache"

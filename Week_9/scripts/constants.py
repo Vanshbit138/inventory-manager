@@ -30,6 +30,6 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 
 # ---------------- Embeddings ----------------
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 HF_EMBEDDINGS = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)

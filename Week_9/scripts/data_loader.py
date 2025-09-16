@@ -1,19 +1,16 @@
-# scripts/db_loader.py
+# scripts/data_loader.py
 """
-Load product data (product_id, name, full description) from the database.
-This will be used as input for chunking and embeddings in the RAG pipeline.
+Load product data from the database.
+Supports multi-tenancy by filtering products per user_id.
 """
 
-import os
 import logging
 import psycopg2
 from typing import List, Dict
 from dotenv import load_dotenv
 from constants import DATABASE_URL_WEEK8, PRODUCT_TABLE
 
-# ------------------ Setup ------------------
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-load_dotenv(os.path.join(BASE_DIR, ".env"))
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,10 +19,10 @@ logging.basicConfig(
 )
 
 
-def load_products() -> List[Dict[str, str]]:
+def load_products(user_id: int = None) -> List[Dict[str, str]]:
     """
     Load products from Postgres.
-    Build a synthetic description using all available fields.
+    If user_id is provided, only load products belonging to that user.
     """
     try:
         logging.info("Connecting to database: %s", DATABASE_URL_WEEK8)
@@ -36,6 +33,9 @@ def load_products() -> List[Dict[str, str]]:
                            expiry_date, warranty_period, author, pages
                     FROM {PRODUCT_TABLE}
                 """
+                if user_id is not None:
+                    query += f" WHERE owner_id = {user_id}"
+
                 cur.execute(query)
                 rows = cur.fetchall()
 
@@ -53,7 +53,6 @@ def load_products() -> List[Dict[str, str]]:
                 pages,
             ) = row
 
-            # Build a richer description
             description_parts = [
                 f"A {ptype} product priced at {price} with quantity {quantity}."
             ]
@@ -85,6 +84,7 @@ def load_products() -> List[Dict[str, str]]:
 
 
 if __name__ == "__main__":
-    products = load_products()
+    # Example: load products for user 17
+    products = load_products(user_id=17)
     for p in products[:5]:
         print(p)

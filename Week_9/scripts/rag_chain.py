@@ -38,6 +38,24 @@ BOILERPLATE_PATTERNS = [
     r"^\s*from (the )?(context|documents)[:,]?\s*",
 ]
 
+# Intent patterns
+GREETING_RE = re.compile(
+    r"^\s*(hi|hello|hey|good (morning|afternoon|evening)|greetings|how (can|may) (you|u) help|how can you assist|how do you help)\b",
+    re.IGNORECASE,
+)
+FAREWELL_RE = re.compile(
+    r"\b(bye|goodbye|see you|see ya|take care|later)\b",
+    re.IGNORECASE,
+)
+THANKS_RE = re.compile(
+    r"\b(thanks|thank you|appreciate it|much appreciated)\b",
+    re.IGNORECASE,
+)
+EMOTION_RE = re.compile(
+    r"\b(i\s*(am|'m)\s*(angry|mad|upset|frustrated|annoyed|sad|down|depressed|anxious|stressed|worried|overwhelmed|happy|glad|excited|joyful))\b",
+    re.IGNORECASE,
+)
+
 
 def clean_answer(text: str) -> str:
     t = text or ""
@@ -47,11 +65,59 @@ def clean_answer(text: str) -> str:
     return t.strip()
 
 
+def is_greeting(q: str) -> bool:
+    return bool(GREETING_RE.search(q or ""))
+
+
+def is_farewell(q: str) -> bool:
+    return bool(FAREWELL_RE.search(q or ""))
+
+
+def is_thanks(q: str) -> bool:
+    return bool(THANKS_RE.search(q or ""))
+
+
+def is_emotion(q: str) -> bool:
+    return bool(EMOTION_RE.search(q or ""))
+
+
+def greeting_response(q: str) -> str:
+    if re.search(r"afternoon", q or "", re.IGNORECASE):
+        prefix = "Good afternoon!"
+    elif re.search(r"morning", q or "", re.IGNORECASE):
+        prefix = "Good morning!"
+    elif re.search(r"evening", q or "", re.IGNORECASE):
+        prefix = "Good evening!"
+    else:
+        prefix = "Hello!"
+    return f"{prefix} I can help you query your inventory and your uploaded documents. Ask about products, prices, stock, or the content of your documents."
+
+
+def farewell_response(q: str) -> str:
+    return "Goodbye! Take care, and feel free to reach out anytime you need help."
+
+
+def thanks_response(q: str) -> str:
+    return "You're welcome! If you need anything else, I'm here to help."
+
+
+def emotion_response(q: str) -> str:
+    m = EMOTION_RE.search(q or "")
+    tone = (m.group(3).lower() if m else "").strip()
+    if tone in {"angry", "mad", "upset", "frustrated", "annoyed"}:
+        return "I'm sorry you're feeling this way. If you'd like, tell me what's causing the frustration, and I can try to help or offer suggestions."
+    if tone in {"sad", "down", "depressed"}:
+        return "I'm sorry you're feeling sad. You're not alone—I'm here to listen and help. Would you like to talk about what's on your mind?"
+    if tone in {"anxious", "stressed", "worried", "overwhelmed"}:
+        return "That sounds stressful. Taking a deep breath can help. If you want, share a bit more and I can offer ideas or support."
+    if tone in {"happy", "glad", "excited", "joyful"}:
+        return "That's great to hear! I'm happy for you. If there's anything you'd like to explore or get done while you're in a good mood, I'm here to help."
+    return "Thanks for sharing how you feel. I'm here to support you—would you like to tell me more so I can help?"
+
+
 def load_vector_store(collection_name: str = "product_embedding_hf") -> PGVector:
-    """Load existing PGVector embeddings."""
     if not DATABASE_URL_WEEK8:
         raise ValueError("DATABASE_URL_WEEK8 not found in environment")
-
     return PGVector(
         collection_name=collection_name,
         connection_string=DATABASE_URL_WEEK8,
@@ -60,33 +126,24 @@ def load_vector_store(collection_name: str = "product_embedding_hf") -> PGVector
 
 
 def get_llm(use_ollama: bool = False):
-    """Return the LLM instance."""
     if use_ollama:
         return ChatOllama(model=CHAT_MODEL_OLLAMA, temperature=CHAT_TEMPERATURE)
     return ChatOpenAI(model=CHAT_MODEL_OPENAI, temperature=CHAT_TEMPERATURE)
 
 
 def build_rag_chain(vector_store: PGVector, llm, user_id: int) -> object:
-    """Build RAG chain with multi-tenant filter and similarity threshold."""
     str_user_id = str(user_id)
     jsonb_filter = {"user_id": str_user_id}
-
     retriever = vector_store.as_retriever(
         search_type="similarity_score_threshold",
-        search_kwargs={
-            "k": 3,
-            "filter": jsonb_filter,
-            "score_threshold": 0.30,  # tune 0.2–0.4 as needed
-        },
+        search_kwargs={"k": 3, "filter": jsonb_filter, "score_threshold": 0.30},
     )
-
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", SYSTEM_PROMPT),
             ("human", "Context:\n{context}\n\nQuestion: {question}"),
         ]
     )
-
     chain = (
         {"context": retriever, "question": RunnablePassthrough()}
         | prompt
@@ -97,11 +154,39 @@ def build_rag_chain(vector_store: PGVector, llm, user_id: int) -> object:
 
 
 def answer_question(question: str, llm, user_id: int) -> str:
-    """Answer using RAG with user_id filtering, threshold fallback, and tenant-safe cache."""
     try:
-        # Tenant-safe cache key to avoid cross-tenant leakage
         normalized_q = (question or "").strip().lower()
         cache_key = f"{user_id}::{normalized_q}"
+
+        # Handle small-talk intents without requiring context
+        if is_greeting(question):
+            resp = greeting_response(question)
+            try:
+                SQLAlchemyCache.set(cache_key, resp)
+            except Exception:
+                pass
+            return resp
+        if is_thanks(question):
+            resp = thanks_response(question)
+            try:
+                SQLAlchemyCache.set(cache_key, resp)
+            except Exception:
+                pass
+            return resp
+        if is_farewell(question):
+            resp = farewell_response(question)
+            try:
+                SQLAlchemyCache.set(cache_key, resp)
+            except Exception:
+                pass
+            return resp
+        if is_emotion(question):
+            resp = emotion_response(question)
+            try:
+                SQLAlchemyCache.set(cache_key, resp)
+            except Exception:
+                pass
+            return resp
 
         cached = SQLAlchemyCache.get(cache_key)
         if cached:
@@ -125,7 +210,6 @@ def answer_question(question: str, llm, user_id: int) -> str:
         rag_chain = build_rag_chain(vector_store, llm, user_id)
         answer = rag_chain.invoke(question)
         answer = clean_answer(answer)
-
         if not answer or not answer.strip():
             answer = FALLBACK
 

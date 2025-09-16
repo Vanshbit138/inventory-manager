@@ -381,7 +381,77 @@ Week_8/
 
 ```
 
-##  Next Steps & Potential Enhancements
+
+### Week 9: Production-Ready AI & Advanced Features
+## Branch: feat/week-9 → develop
+
+**Goals Achieved**
+
+- Implemented LLM caching for cost and latency optimization
+- Integrated open-source embeddings (MiniLM) via HuggingFace
+- Added support for local LLMs using Ollama (Llama 3)
+- Implemented multi-tenancy with strict user data isolation
+- Conducted comprehensive code review for scalability and security
+- Compared OpenAI vs. open-source models for cost, speed, and reliability
+
+## Project Structure
+
+```
+Week_9/
+├── alembic.ini
+├── api/                      
+│   ├── app.py                # App entrypoint
+│   ├── chat_routes.py        # Chat (RAG) blueprint and endpoint
+│   ├── config.py             # App config (loads .env values)
+│   ├── db.py                 # SQLAlchemy setup
+│   ├── documents.py          # Document ingestion and management
+│   ├── __init__.py           # App factory, blueprint registration
+│   ├── models.py             # SQLAlchemy models
+│   ├── routes.py             # Product routes (CRUD)
+│   ├── schemas/              # Pydantic request/response validation
+│   │   ├── request.py
+│   │   └── response.py
+│   ├── security/             # Auth (JWT, password hashing, decorators)
+│   │   ├── auth.py
+│   │   ├── decorators.py
+│   │   ├── jwt_utils.py
+│   │   └── password.py
+│   └── seed.py               # DB seeding
+├── data/
+│   └── products.csv          # Sample product data
+├── migrations/               # Alembic migration files
+│   ├── env.py
+│   └── versions/
+├── prompts/
+│   └── system_prompt.py      # System prompts for RAG and embeddings
+├── report.txt                # End-of-week report
+├── requirements.txt          # Python dependencies
+├── scripts/                  # Utility scripts for RAG and embeddings
+│   ├── cli.py
+│   ├── constants.py
+│   ├── data_loader.py
+│   ├── embedded_sentences.py
+│   ├── embedding.py
+│   ├── llm_cache.py
+│   ├── query_gpt.py
+│   ├── rag_chain.py
+│   ├── rag_cli.py
+│   ├── storage.py
+│   └── text_splitter.py
+└── README.md
+```
+
+## Key Features
+
+- LLM Caching: SQLAlchemy-backed cache table for repeated queries
+- Open-Source Models: HuggingFace MiniLM embeddings + Ollama Llama 3 integration
+- Multi-Tenancy: User-level document isolation enforced at database and retriever layers
+- Model Toggle: Configurable switch between OpenAI and local LLMs
+- Scalability Improvements: Stateless app design, caching, and connection pooling
+- Code Review: Architecture evaluated for performance, maintainability, and security
+
+
+## Next Steps & Potential Enhancements
 
 ### Advanced Features
 - [ ] Docker containerization

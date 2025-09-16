@@ -182,12 +182,54 @@ inventory-manager/
 └── prompts/                
     ├── system_prompts.py   
 └── scripts/                
-    ├── constants.py       
-    ├── data_loader.py   
-    ├── rag_chain.py
-    ├── embedding.py    
-    ├── storage.py      
-    └── query_gpt.py       
+│   ├── constants.py       
+│   ├── data_loader.py   
+│   ├── rag_chain.py
+│   ├── embedding.py    
+│   ├── storage.py      
+│   └── query_gpt.py       
+└──Week_9/
+├── alembic.ini
+├── api/                      
+│   ├── app.py                # App entrypoint
+│   ├── chat_routes.py        # Chat (RAG) blueprint and endpoint
+│   ├── config.py             # App config (loads .env values)
+│   ├── db.py                 # SQLAlchemy setup
+│   ├── documents.py          # Document ingestion and management
+│   ├── __init__.py           # App factory, blueprint registration
+│   ├── models.py             # SQLAlchemy models
+│   ├── routes.py             # Product routes (CRUD)
+│   ├── schemas/              # Pydantic request/response validation
+│   │   ├── request.py
+│   │   └── response.py
+│   ├── security/             # Auth (JWT, password hashing, decorators)
+│   │   ├── auth.py
+│   │   ├── decorators.py
+│   │   ├── jwt_utils.py
+│   │   └── password.py
+│   └── seed.py               # DB seeding
+├── data/
+│   └── products.csv          # Sample product data
+├── migrations/               # Alembic migration files
+│   ├── env.py
+│   └── versions/
+├── prompts/
+│   └── system_prompt.py      # System prompts for RAG and embeddings
+├── report.txt                # End-of-week report
+├── requirements.txt          # Python dependencies
+├── scripts/                  # Utility scripts for RAG and embeddings
+│   ├── cli.py
+│   ├── constants.py
+│   ├── data_loader.py
+│   ├── embedded_sentences.py
+│   ├── embedding.py
+│   ├── llm_cache.py
+│   ├── query_gpt.py
+│   ├── rag_chain.py
+│   ├── rag_cli.py
+│   ├── storage.py
+│   └── text_splitter.py
+└── README.md
 
 ```
 
